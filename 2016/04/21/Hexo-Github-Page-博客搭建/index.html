@@ -100,7 +100,8 @@ Hexo 能免费托管到Github page 上面
 能够导出静态页面,部署到任意地方">
 <meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/921CE7E0-5496-4F27-801B-A45C920DFF9F.png">
 <meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/56744305-FAAB-4927-8DA9-5286723A481D.png">
-<meta property="og:updated_time" content="2016-04-21T07:04:21.000Z">
+<meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/29189BB8-63DD-4086-9686-4C334597D12B.png">
+<meta property="og:updated_time" content="2016-04-21T15:20:14.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hexo+Github Page 博客搭建">
 <meta name="twitter:description" content="前言一直以来都想搭建一个个人博客，由于不懂web技术，迟迟没有动手去做，所以一些文字记录都是保存到印象笔记这种第三方平台折腾期间，陆续接触了Ghost , Hexo 并将这两个博客都搭建了一遍，最后还是选择了Hexo
@@ -357,14 +358,44 @@ Hexo 能免费托管到Github page 上面
 <figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"><span class="meta-keyword">$hexo</span> clean</span></span><br><span class="line"><span class="meta"><span class="meta-keyword">$hexo</span> g</span></span><br><span class="line"><span class="meta"><span class="meta-keyword">$hexo</span> s</span></span><br></pre></td></tr></table></figure>
 <p>再次访问 <code>http://localhost:4000/</code>  我们的博客已经切换到next 主题</p>
 <h1 id="发布"><a href="#发布" class="headerlink" title="发布"></a>发布</h1><p>到目前为止我们所有的预览都是建立在本地的serve上的，其他人并不能访问到我们的博客，我们接下来要做的就是将我们的博客发布到Github page 让所有人都能访问</p>
-<h2 id="Github-Page"><a href="#Github-Page" class="headerlink" title="Github Page"></a>Github Page</h2><p>每一个Github 账号都能创建一个特殊的Repo<br>这个Repo的名字是 Github 的用户名<br>这个Repo的Master 分之根目录里面的index.html 可以通过域名<code>repoName.github.io</code>来进行访问<br>详细的关于github page 的内容可以点击 <a href="https://pages.github.com" target="_blank" rel="external"><strong>Github pages</strong></a></p>
-<h2 id="发布博客"><a href="#发布博客" class="headerlink" title="发布博客"></a>发布博客</h2><p>首先我们要修改<code>_config.yml</code> 高速hexo 该发布到哪个平台<br>打开blog 根目录的 _config.yml 修改 deploy</p>
+<h2 id="Github-Page"><a href="#Github-Page" class="headerlink" title="Github Page"></a>Github Page</h2><p>每一个Github 账号都能创建一个特殊的Repo<br>这个Repo的名字是 Github 的用户名<br>这个Repo的Master 分支根目录里面的index.html 可以通过域名<code>repoName.github.io</code>来进行访问<br>详细的关于github page 的内容可以点击 <a href="https://pages.github.com" target="_blank" rel="external"><strong>Github pages</strong></a></p>
+<h2 id="发布博客"><a href="#发布博客" class="headerlink" title="发布博客"></a>发布博客</h2><p>首先我们要修改<code>_config.yml</code> 告诉hexo 该发布到哪个平台<br>打开blog 根目录的 _config.yml 修改 deploy</p>
 <figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">deploy</span>:</span><br><span class="line">  <span class="attribute">type</span>: git</span><br><span class="line">  <span class="attribute">repo</span>: <span class="attribute">https</span>:<span class="comment">//github.com/bucengyongyou/bucengyongyou.github.io.git</span></span><br><span class="line">  <span class="attribute">branch</span>: master</span><br></pre></td></tr></table></figure>
 <p>安装 一个hexo 扩展  <code>hexo-deployer-git</code></p>
 <figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"><span class="meta-keyword">$npm</span> install hexo-deployer-git --save</span></span><br></pre></td></tr></table></figure>
 <p>发布命令</p>
 <figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$hexo</span> <span class="keyword">d</span> -<span class="keyword">g</span></span><br></pre></td></tr></table></figure>
-<p>如果我们是第一次使用，可能会提示我们输入Github 账号密码</p>
+<p>如果我们是第一次使用，可能会提示我们输入Github 账号密码<br>成功之后我们打开<code>bucengyongyou.github.io</code>就能看到我们的主页了</p>
+<h1 id="图床"><a href="#图床" class="headerlink" title="图床"></a>图床</h1><p>之前并没有接触过这个概念,所谓图床就是</p>
+<blockquote>
+<p>就是专门用来存放图片，同时允许你把图片对外连接的网上空间</p>
+</blockquote>
+<p>由于使用hexo 写博客的时候 引用本地图片比较麻烦，并且将来迁移起来比较麻烦，所以一般我们都是将图片上传到图床上，然后外链到博客中<br>这里我们使用<a href="http://www.qiniu.com" target="_blank" rel="external"><strong>七牛云存储</strong></a><br>注册用户通过实名认证后有10GB 的免费空间<br>并且 七牛云在加载图片的时候能够通过拼接url参数来对图片做处理，比如缩略图，水印，剪裁等等</p>
+<p>所以我们写博客时，如果用到图片的话就必须经过如下步骤</p>
+<ul>
+<li>打开七牛面板，找到图片上传</li>
+<li>复制图片链接</li>
+<li>贴到博客</li>
+</ul>
+<p>其中第一步是比较繁琐的，要打开文件选择器，然后找到图片，然后再上传，如果我们是用的截图（可能大部分情况是用的截图） 那就更麻烦，我们还要找到截图的位置，或者把截图先复制到某个常用文件夹里面然后再去后台上传</p>
+<h2 id="那么有没有更佳优雅的方式"><a href="#那么有没有更佳优雅的方式" class="headerlink" title="那么有没有更佳优雅的方式"></a>那么有没有更佳优雅的方式</h2><p>答案是肯定的，这里推荐一个插件  <code>qiniu4blog</code><br>能够检测某个文件夹，如果有新增图片，立即上传到我们配置的七牛平台，并且将链接保存到剪切板<br>使用这个插件之后我们的添加图片的流程就变成如下</p>
+<ul>
+<li>将图片复制到被检测的文件夹</li>
+<li>将链接粘贴到博客</li>
+</ul>
+<p>接下来安装<code>qiniu4blog</code></p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo pip <span class="keyword">install</span> qiniu4blog</span><br></pre></td></tr></table></figure>
+<p>配置qiniu4blog  在home 目录下面新建配置文件<code>qiniu.cfg</code> 比如<code>/Users/xxxx/qiniu.cfg</code></p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[config]</span></span><br><span class="line"><span class="attr">bucket</span> = your-bucket-name</span><br><span class="line"><span class="attr">accessKey</span> = qzA***********************sa</span><br><span class="line"><span class="attr">secretKey</span> = P5G***********************wq</span><br><span class="line"><span class="attr">path_to_watch</span> = /Users/xxx/Desktop/hexo/blog/images</span><br><span class="line"><span class="section"></span><br><span class="line">[custom_url]</span></span><br><span class="line"><span class="attr">enable</span> = <span class="literal">true</span></span><br><span class="line"><span class="attr">addr</span> = http://<span class="number">7</span>qnct6.com1.z0.glb.clouddn.com/</span><br></pre></td></tr></table></figure>
+<p>这里 <code>bucket</code>是我们在七牛上面创建的资源对象的名字</p>
+<p><code>path_to_watch</code> 我们希望检测的自动上传的文件夹 我们在blog目录新建一个文件夹用来存放图片，并将目录指定到path_to_watch</p>
+<p><code>custom_url</code> 这里设置为true 因为我们并没有申请域名，所以使用的是七牛的测试域名</p>
+<p>打开终端 运行qiniu4blog</p>
+<figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"><span class="meta-keyword">$qiniu4blog</span></span></span><br></pre></td></tr></table></figure>
+<p>这里我在实际运行的时候 报错找不到<code>ndg-httpsclient</code>,<code>pyasn1</code>这两个库，通过</p>
+<figure class="highlight gams"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"><span class="meta-keyword">$pip</span> install ndg-httpsclient</span></span><br><span class="line"><span class="meta"><span class="meta-keyword">$pip</span> install pyasn1</span></span><br></pre></td></tr></table></figure>
+<p>安装完毕之后 再次运行成功</p>
+<p>此时比如我们需要截图贴到博客，我们可以用qq进行截图，然后对图片<code>cmd+c</code>,打开images 目录,<code>cmd+v</code><br>图片会自动上传<br><img src="http://7xiutw.com1.z0.glb.clouddn.com/29189BB8-63DD-4086-9686-4C334597D12B.png" alt=""><br>此时图片地址也自动复制到剪切板上了,字节在博客中粘贴即可</p>
 
       
     </div>
@@ -484,7 +515,7 @@ Hexo 能免费托管到Github page 上面
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#准备环境"><span class="nav-number">2.</span> <span class="nav-text">准备环境</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装Hexo"><span class="nav-number">3.</span> <span class="nav-text">安装Hexo</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#初始化博客工作目录"><span class="nav-number">3.1.</span> <span class="nav-text">初始化博客工作目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#预览博客"><span class="nav-number">3.2.</span> <span class="nav-text">预览博客</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#创建一篇博客"><span class="nav-number">3.3.</span> <span class="nav-text">创建一篇博客</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#更换主题"><span class="nav-number">4.</span> <span class="nav-text">更换主题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#下载主题"><span class="nav-number">4.1.</span> <span class="nav-text">下载主题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#启用主题"><span class="nav-number">4.2.</span> <span class="nav-text">启用主题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#发布"><span class="nav-number">5.</span> <span class="nav-text">发布</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Github-Page"><span class="nav-number">5.1.</span> <span class="nav-text">Github Page</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#发布博客"><span class="nav-number">5.2.</span> <span class="nav-text">发布博客</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#准备环境"><span class="nav-number">2.</span> <span class="nav-text">准备环境</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#安装Hexo"><span class="nav-number">3.</span> <span class="nav-text">安装Hexo</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#初始化博客工作目录"><span class="nav-number">3.1.</span> <span class="nav-text">初始化博客工作目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#预览博客"><span class="nav-number">3.2.</span> <span class="nav-text">预览博客</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#创建一篇博客"><span class="nav-number">3.3.</span> <span class="nav-text">创建一篇博客</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#更换主题"><span class="nav-number">4.</span> <span class="nav-text">更换主题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#下载主题"><span class="nav-number">4.1.</span> <span class="nav-text">下载主题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#启用主题"><span class="nav-number">4.2.</span> <span class="nav-text">启用主题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#发布"><span class="nav-number">5.</span> <span class="nav-text">发布</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Github-Page"><span class="nav-number">5.1.</span> <span class="nav-text">Github Page</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#发布博客"><span class="nav-number">5.2.</span> <span class="nav-text">发布博客</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#图床"><span class="nav-number">6.</span> <span class="nav-text">图床</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#那么有没有更佳优雅的方式"><span class="nav-number">6.1.</span> <span class="nav-text">那么有没有更佳优雅的方式</span></a></li></ol></li></ol></div>
             
           </div>
         </section>
