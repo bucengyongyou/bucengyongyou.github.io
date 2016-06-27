@@ -1,0 +1,746 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="前言本文并不是对HTTP协议科普的文章，不会对HTTP协议的基础进行详细的阐述，但是会从几个大的层面来分析HTTP协议是怎么工作的，让大家加深对网络请求原理的理解，本文将分别对不同类型的请求的请求报文，响应报文进行分析
+概念HTTP协议到底是个什么东西，其实就是官方指定了一些格式，大家在通信的时候都按照这个协议个格式组装报文，然后自己解析报文进行操作，实际开发中，大量的第三方框架会把解析报文的工作">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HTTP 协议学习笔记">
+<meta property="og:url" content="http://yoursite.com/2016/06/27/HTTP-协议学习笔记/index.html">
+<meta property="og:site_name" content="不曾拥有的技术博客">
+<meta property="og:description" content="前言本文并不是对HTTP协议科普的文章，不会对HTTP协议的基础进行详细的阐述，但是会从几个大的层面来分析HTTP协议是怎么工作的，让大家加深对网络请求原理的理解，本文将分别对不同类型的请求的请求报文，响应报文进行分析
+概念HTTP协议到底是个什么东西，其实就是官方指定了一些格式，大家在通信的时候都按照这个协议个格式组装报文，然后自己解析报文进行操作，实际开发中，大量的第三方框架会把解析报文的工作">
+<meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/wKioL1THNfahGAkDAAFu--59S3M173.jpg">
+<meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/20150126110634828.png">
+<meta property="og:updated_time" content="2016-06-27T08:20:48.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="HTTP 协议学习笔记">
+<meta name="twitter:description" content="前言本文并不是对HTTP协议科普的文章，不会对HTTP协议的基础进行详细的阐述，但是会从几个大的层面来分析HTTP协议是怎么工作的，让大家加深对网络请求原理的理解，本文将分别对不同类型的请求的请求报文，响应报文进行分析
+概念HTTP协议到底是个什么东西，其实就是官方指定了一些格式，大家在通信的时候都按照这个协议个格式组装报文，然后自己解析报文进行操作，实际开发中，大量的第三方框架会把解析报文的工作">
+<meta name="twitter:image" content="http://7xiutw.com1.z0.glb.clouddn.com/wKioL1THNfahGAkDAAFu--59S3M173.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"hide"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> HTTP 协议学习笔记 | 不曾拥有的技术博客 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta custom-logo">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">不曾拥有的技术博客</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                HTTP 协议学习笔记
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-06-27T11:34:11+08:00" content="2016-06-27">
+              2016-06-27
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/06/27/HTTP-协议学习笔记/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/06/27/HTTP-协议学习笔记/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             &nbsp; | &nbsp;
+              <span id="/2016/06/27/HTTP-协议学习笔记/"class="leancloud_visitors" data-flag-title="HTTP 协议学习笔记">
+                       &nbsp;阅读次数
+                      </span>
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>本文并不是对HTTP协议科普的文章，不会对HTTP协议的基础进行详细的阐述，但是会从几个大的层面来分析HTTP协议是怎么工作的，让大家加深对网络请求原理的理解，本文将分别对不同类型的请求的请求报文，响应报文进行分析</p>
+<h1 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h1><p>HTTP协议到底是个什么东西，其实就是官方指定了一些格式，大家在通信的时候都按照这个协议个格式组装报文，<br>然后自己解析报文进行操作，实际开发中，大量的第三方框架会把解析报文的工作进行封装</p>
+<p>这里的通信又是建立在tcp协议的基础上，使用socket进行通信，<br>tcp协议会封装出一个报文，包括请求头，请求data，然后这个请求data里面有包括http协议的完整报文</p>
+<a id="more"></a>
+<h1 id="HTTP-请求类型"><a href="#HTTP-请求类型" class="headerlink" title="HTTP 请求类型"></a>HTTP 请求类型</h1><p>HTTP 协议一共定义了八种请求类型，也就是我们经常用到的method类型</p>
+<ul>
+<li>GET     请求获取Request-URI所标识的资源</li>
+<li>POST    在Request-URI所标识的资源后附加新的数据</li>
+<li>HEAD    请求获取由Request-URI所标识的资源的响应消息报头</li>
+<li>PUT     请求服务器存储一个资源，并用Request-URI作为其标识</li>
+<li>DELETE  请求服务器删除Request-URI所标识的资源</li>
+<li>TRACE   请求服务器回送收到的请求信息，主要用于测试或诊断</li>
+<li>CONNECT 保留将来使用</li>
+<li>OPTIONS 请求查询服务器的性能，或者查询与资源相关的选项和需求</li>
+</ul>
+<p>这八种类型，是在HTTP协议层面的定义，HTTP说，我定义了这么多请求类型，够大家使用的了，大家请求的时候不要再出现其他的类型了。</p>
+<p>然后服务端收到完整报文的时候，解析请求类型，根据不同的类型去做不同的操作，比如接收到DELETE 类型的请求，就会删除指定的资源。</p>
+<p>其实我们也完全可以只使用其中一种类型，然后通关传入的参数来决定是什么操作，比如同样是删除操作，我们使用GET 类型，并且传入两个参数，代表删除操作，以及删除的资源地址,同样能够达到DELETE的效果，但是这里面我们相当于自己又定义了一套”协议”</p>
+<p>在我们实际的项目使用过程中，使用的最多的就是 GET POST 两种类型，在这两种类型里面，会衍生出多种不同的”操作”，比如 普通的接口请求，上传文件，下载文件等</p>
+<h1 id="HTTP-请求报文-响应报文"><a href="#HTTP-请求报文-响应报文" class="headerlink" title="HTTP 请求报文 响应报文"></a>HTTP 请求报文 响应报文</h1><p>一个HTTP请求报文由请求行（request line）、请求头部（header）、空行和请求数据4个部分组成，下图给出了请求报文的一般格式。<br><img src="http://7xiutw.com1.z0.glb.clouddn.com/wKioL1THNfahGAkDAAFu--59S3M173.jpg" alt=""></p>
+<p>一个HTTP 响应报文与请求报文的格式类似 由状态行、响应头部、空行 和 响应数据4个部分组成，下图给出了响应报文的一般格式。<br><img src="http://7xiutw.com1.z0.glb.clouddn.com/20150126110634828.png" alt=""></p>
+<h1 id="普通接口请求"><a href="#普通接口请求" class="headerlink" title="普通接口请求"></a>普通接口请求</h1><p>在日常开发中，使用场景最广泛的操作就是普通接口请求了，而普通接口请求，又可以分为GET,POST两种请求类型</p>
+<h2 id="GET请求接口"><a href="#GET请求接口" class="headerlink" title="GET请求接口"></a>GET请求接口</h2><p>将参数直接拼接在了[请求行]中的URL 后面  body(请求数据)中无内容,请求头中不需要Content-Type  Content-Length</p>
+<p>请求报文</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">GET</span> <span class="string">/v1/test.html?param=1</span> HTTP/1.1</span><br><span class="line"><span class="attribute">Host</span>: www.test.com</span><br><span class="line"><span class="attribute">Accept</span>: */*</span><br><span class="line"><span class="attribute">User-Agent</span>: NetWorkTest/1.0 (iPhone; iOS 9.3.1; Scale/2.00)</span><br><span class="line"><span class="attribute">Accept-Language</span>: zh-Hans-CN;q=1</span><br><span class="line"><span class="attribute">Accept-Encoding</span>: gzip, deflate</span><br><span class="line"><span class="attribute">Connection</span>: keep-alive</span><br></pre></td></tr></table></figure>
+<h2 id="POST请求接口"><a href="#POST请求接口" class="headerlink" title="POST请求接口"></a>POST请求接口</h2><p>将参数放到body(请求包体)里面，同时必须在请求头中增加Content-Type  Content-Length </p>
+<p>contentType：application/x-www-form-urlencoded<br>contentLength: body数据的长度</p>
+<p>application/x-www-form-urlencoded：提交的数据按照 key1=val1&amp;key2=val2 的方式进行编码，key 和 val 都进行了 URL 转码。大部分服务端语言都对这种方式有很好的支持</p>
+<p>请求报文</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">POST</span> <span class="string">/v1/test.html</span> HTTP/1.1</span><br><span class="line"><span class="attribute">Host</span>: www.test.com</span><br><span class="line"><span class="attribute">Content-Type</span>: application/x-www-form-urlencoded</span><br><span class="line"><span class="attribute">Connection</span>: keep-alive</span><br><span class="line"><span class="attribute">Accept</span>: */*</span><br><span class="line"><span class="attribute">User-Agent</span>: NetWorkTest/1.0 (iPhone; iOS 9.3.1; Scale/2.00)</span><br><span class="line"><span class="attribute">Accept-Language</span>: zh-Hans-CN;q=1</span><br><span class="line"><span class="attribute">Content-Length</span>: 323</span><br><span class="line"><span class="attribute">Accept-Encoding</span>: gzip, deflate</span><br><span class="line"></span><br><span class="line"><span class="gcode">para<span class="name">m1</span>=<span class="number">1</span>&amp;para<span class="name">m2</span>=<span class="number">2</span></span></span><br></pre></td></tr></table></figure>
+<h2 id="响应报文"><a href="#响应报文" class="headerlink" title="响应报文"></a>响应报文</h2><p>无论上面的GET 请求还是POST 请求，其响应报文的格式都是一样的</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 <span class="number">200</span> OK</span><br><span class="line"><span class="attribute">Date</span>: Tue, 24 May 2016 08:15:59 GMT</span><br><span class="line"><span class="attribute">Content-Type</span>: application/json; charset=utf-8</span><br><span class="line"><span class="attribute">Content-Length</span>: 10504</span><br><span class="line"><span class="attribute">Connection</span>: keep-alive</span><br><span class="line"></span><br><span class="line"><span class="1c">&#123;<span class="string">"code"</span>:<span class="string">"0"</span>,<span class="string">"data"</span>:&#123;<span class="string">"configlist"</span>:[&#123;<span class="string">"tit......</span></span><br><span class="line">...............</span><br><span class="line">........</span></span><br></pre></td></tr></table></figure>
+<p>响应行中的200 是状态码，包括我们常见的404 502等等</p>
+<h1 id="文件上传"><a href="#文件上传" class="headerlink" title="文件上传"></a>文件上传</h1><p>文件上传一般用POST请求，将文件数据放到body中，但是根据请求头中Content-Type的不同，上传文件又可以分为两种形式</p>
+<ul>
+<li>Content-Type 直接指定文件类型，如image/jpeg, body中的数据为完整的图片数据</li>
+<li>Content-Type:multipart/form-data </li>
+</ul>
+<h2 id="Content-Type-直接指定文件类型"><a href="#Content-Type-直接指定文件类型" class="headerlink" title="Content-Type 直接指定文件类型"></a>Content-Type 直接指定文件类型</h2><p>这种方式比较简单，只需要指定Content-Type  Content-Length 即可</p>
+<p>Content-Type是上传文件的mine类型，Content-Length是上传文件数据的大小，将上传的数据放到请求报文的body中即可</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">POST</span> <span class="string">/v1/upload/updateImgFile.html</span> HTTP/1.1</span><br><span class="line"><span class="attribute">Host</span>: www.test.com</span><br><span class="line"><span class="attribute">Content-Type</span>: image/jpeg</span><br><span class="line"><span class="attribute">Connection</span>: keep-alive</span><br><span class="line"><span class="attribute">Accept</span>: */*</span><br><span class="line"><span class="attribute">User-Agent</span>: ALiuLian_Indiana/1.1 (iPhone; iOS 9.3.1; Scale/2.00)</span><br><span class="line"><span class="attribute">Accept-Language</span>: zh-Hans-CN;q=1</span><br><span class="line"><span class="attribute">Content-Length</span>: 14469</span><br><span class="line"><span class="attribute">Accept-Encoding</span>: gzip, deflate</span><br><span class="line"></span><br><span class="line"><span class="undefined">xxxxx图片数据xxxxxxxx</span></span><br></pre></td></tr></table></figure>
+<h2 id="multipart-form-data方式"><a href="#multipart-form-data方式" class="headerlink" title="multipart/form-data方式"></a>multipart/form-data方式</h2><p>上面第一种方式上传文件比较简单，但是灵活性不高，比如我们想在上传的时候携带一些参数，让服务端执行一些逻辑就没有办法做到</p>
+<p>那multipart/form-data 其实就是表单上传的方式，表单的每一个field 可以是不同的数据类型</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">POST</span> <span class="string">/v1/upload/updateImgFile.html</span> HTTP/1.1</span><br><span class="line"><span class="attribute">Host</span>: www.test.com</span><br><span class="line"><span class="attribute">Content-Type</span>: multipart/form-data; boundary=Boundary+C619070F12F3DF1C</span><br><span class="line"><span class="attribute">Connection</span>: keep-alive</span><br><span class="line"><span class="attribute">Accept</span>: */*</span><br><span class="line"><span class="attribute">User-Agent</span>: ALiuLian_Indiana/1.1 (iPhone; iOS 9.3.1; Scale/2.00)</span><br><span class="line"><span class="attribute">Accept-Language</span>: zh-Hans-CN;q=1</span><br><span class="line"><span class="attribute">Content-Length</span>: 14469</span><br><span class="line"><span class="attribute">Accept-Encoding</span>: gzip, deflate</span><br><span class="line"></span><br><span class="line"><span class="applescript"><span class="comment">--Boundary+385E026CA83A2B1F</span></span><br><span class="line">Content-Disposition: form-data; <span class="built_in">name</span>=<span class="string">"param1"</span></span><br><span class="line"></span><br><span class="line"><span class="number">1025</span></span><br><span class="line"><span class="comment">--Boundary+385E026CA83A2B1F</span></span><br><span class="line">Content-Disposition: form-data; <span class="built_in">name</span>=<span class="string">"attachment"</span>; filename=<span class="string">"121305061464079793header.png"</span></span><br><span class="line">Content-Type: image/jpg</span><br><span class="line"></span><br><span class="line">******图片数据******</span><br><span class="line"><span class="comment">--Boundary+385E026CA83A2B1F--</span></span></span><br></pre></td></tr></table></figure>
+<p>上面是一个完整的POST请求，通过multipart/form-data的方式上传文件，并且携带了param1参数</p>
+<p>Content-Type 不仅要设置为multipart/form-data 后面还必须增加一个boundary,这是一个随机生成的字符串，后面用来分隔不同的field</p>
+<p>field之间用<code>--boundary</code> 分隔  最后以<code>--boundary--</code>结束</p>
+<p>最后上传图片的field Content-Disposition 里面增加了filename参数，用来告诉服务端，文件要以什么名字保存，当然，也可以不需要这个参数，由服务端来命名文件</p>
+<p>注意请求的Content-Length</p>
+<h1 id="下载"><a href="#下载" class="headerlink" title="下载"></a>下载</h1><p>下载一般使用GET请求,只需要指定资源的位置即可，服务端响应报文会把文件内容放到响应body里面，当然如果文件很大，报文可能会被分割成多帧发送，所以我门下载文件的时候，不是一次拿到所有数据，而是不断的进入回调，接收数据</p>
+<h2 id="全文件下载"><a href="#全文件下载" class="headerlink" title="全文件下载"></a>全文件下载</h2><p>请求报文</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">GET</span> <span class="string">/20160524GO0Z7WYI.png</span> HTTP/1.1</span><br><span class="line"><span class="attribute">Host</span>: image.xxxx.com</span><br><span class="line"><span class="attribute">Accept</span>: image/*;q=0.8</span><br><span class="line"><span class="attribute">User-Agent</span>: Indiana/27 CFNetwork/758.3.15 Darwin/15.4.0</span><br><span class="line"><span class="attribute">Accept-Language</span>: zh-cn</span><br><span class="line"><span class="attribute">Accept-Encoding</span>: gzip, deflate</span><br><span class="line"><span class="attribute">Connection</span>: keep-alive</span><br></pre></td></tr></table></figure>
+<p>响应报文</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 <span class="number">200</span> OK</span><br><span class="line"><span class="attribute">Server</span>: AliyunOSS</span><br><span class="line"><span class="attribute">Date</span>: Tue, 24 May 2016 09:11:25 GMT</span><br><span class="line"><span class="attribute">Content-Type</span>: image/jpeg</span><br><span class="line"><span class="attribute">Content-Length</span>: 12418</span><br><span class="line"><span class="attribute">Connection</span>: keep-alive</span><br><span class="line"><span class="attribute">x-oss-request-id</span>: 57441ABC49C125CB26DB0BF9</span><br><span class="line"><span class="attribute">x-oss-bucket-storage-type</span>: standard</span><br><span class="line"><span class="attribute">Accept-Ranges</span>: bytes</span><br><span class="line"><span class="attribute">ETag</span>: "F30283D509A7787153F98BEC6D5474E3"</span><br><span class="line"><span class="attribute">Last-Modified</span>: Tue, 24 May 2016 09:05:33 GMT</span><br><span class="line"><span class="attribute">x-oss-object-type</span>: Normal</span><br><span class="line"><span class="attribute">Content-Disposition</span>: inline;filename=20160524GO0Z7WYI.png</span><br><span class="line"><span class="attribute">Cache-Control</span>: no-cache</span><br><span class="line"><span class="attribute">x-oss-server-time</span>: 15</span><br><span class="line"></span><br><span class="line"><span class="markdown"><span class="strong">*****</span><span class="strong">**图片数据**</span><span class="strong">*****</span><span class="emphasis">***</span>*</span></span><br></pre></td></tr></table></figure>
+<h2 id="部分下载（断点续传）"><a href="#部分下载（断点续传）" class="headerlink" title="部分下载（断点续传）"></a>部分下载（断点续传）</h2><p>只需要在普通下载的请求头中增加一个字段Range，来表示请求资源的数据偏移量，大小即可实现数据的指定部分下载。</p>
+<p>Range: bytes=2000-  下载从2000字节开始，前面的不需要<br>Range: bytes=2000-3000 下载从2000字节到3000字节的内容，其他范围的内容不需要<br>Range: bytes=-3000 下载最后3000字节的内容，其他范围的内容不需要<br>Range: bytes=2000-3000,5000-8000 下载从2000字节到3000字节,5000到8000范围的内容，其他范围的内容不需要</p>
+<p>既然能够指定下载一个文件的某一部分数据，那么断点续传就不难实现了，当我们下载文件的时候，首先查看本地是否已经有这个文件的临时数据，如果有的话，那么我们在下载的时候，就不用从0开始下载，而是指定下载的范围从当前本地数据的长度，一直到文件最后，当接收到数据之后直接append到本地文件后面即可</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">GET</span> <span class="string">/20160524GO0Z7WYI.png</span> HTTP/1.1</span><br><span class="line"><span class="attribute">Host</span>: image.xxxx.com</span><br><span class="line"><span class="attribute">Accept</span>: image/*;q=0.8</span><br><span class="line"><span class="attribute">Range</span>: bytes=200-299</span><br><span class="line"><span class="attribute">User-Agent</span>: Indiana/27 CFNetwork/758.3.15 Darwin/15.4.0</span><br><span class="line"><span class="attribute">Accept-Language</span>: zh-cn</span><br><span class="line"><span class="attribute">Accept-Encoding</span>: gzip, deflate</span><br><span class="line"><span class="attribute">Connection</span>: keep-alive</span><br></pre></td></tr></table></figure>
+<p>响应报文<br><figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 <span class="number">206</span> OK       //注意如果请求使用了Range,这里返回<span class="number">206</span></span><br><span class="line"><span class="attribute">Server</span>: AliyunOSS</span><br><span class="line"><span class="attribute">Date</span>: Tue, 24 May 2016 09:11:25 GMT</span><br><span class="line"><span class="attribute">Content-Type</span>: image/jpeg</span><br><span class="line"><span class="attribute">Content-Length</span>: 12418</span><br><span class="line"><span class="attribute">Connection</span>: keep-alive</span><br><span class="line"><span class="attribute">x-oss-request-id</span>: 57441ABC49C125CB26DB0BF9</span><br><span class="line"><span class="attribute">x-oss-bucket-storage-type</span>: standard</span><br><span class="line"><span class="attribute">Accept-Ranges</span>: bytes</span><br><span class="line"><span class="attribute">Content-Range</span>:  bytes  0-100/2350 //2350:文件总大小</span><br><span class="line"><span class="attribute">ETag</span>: "F30283D509A7787153F98BEC6D5474E3"</span><br><span class="line"><span class="attribute">Last-Modified</span>: Tue, 24 May 2016 09:05:33 GMT</span><br><span class="line"><span class="attribute">x-oss-object-type</span>: Normal</span><br><span class="line"><span class="attribute">Content-Disposition</span>: inline;filename=20160524GO0Z7WYI.png</span><br><span class="line"><span class="attribute">Cache-Control</span>: no-cache</span><br><span class="line"><span class="attribute">x-oss-server-time</span>: 15</span><br><span class="line"></span><br><span class="line"><span class="markdown"><span class="strong">*****</span><span class="strong">**图片数据**</span><span class="strong">*****</span><span class="emphasis">***</span>*</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="多线程下载工具"><a href="#多线程下载工具" class="headerlink" title="多线程下载工具"></a>多线程下载工具</h2><p>假设一个文件400byte 那么，我们可以将文件分为4个部分，0-100，101-200，201-300，301-400，同时开4个线程去同时下载，并建立4个临时文件保存起来，当四个下载任务都完成后，将文件按照顺序合并即可</p>
+
+      
+    </div>
+    
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/04/22/Hexo博客之Next主题自定义配置/" rel="next" title="Hexo博客之Next主题自定义配置">
+                <i class="fa fa-chevron-left"></i> Hexo博客之Next主题自定义配置
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/06/27/HTTP-协议学习笔记/"
+           data-title="HTTP 协议学习笔记" data-url="http://yoursite.com/2016/06/27/HTTP-协议学习笔记/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/portrait.png"
+               alt="不曾拥有" />
+          <p class="site-author-name" itemprop="name">不曾拥有</p>
+          <p class="site-description motion-element" itemprop="description">不曾拥有的技术博客</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">3</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#概念"><span class="nav-number">2.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#HTTP-请求类型"><span class="nav-number">3.</span> <span class="nav-text">HTTP 请求类型</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#HTTP-请求报文-响应报文"><span class="nav-number">4.</span> <span class="nav-text">HTTP 请求报文 响应报文</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#普通接口请求"><span class="nav-number">5.</span> <span class="nav-text">普通接口请求</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#GET请求接口"><span class="nav-number">5.1.</span> <span class="nav-text">GET请求接口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#POST请求接口"><span class="nav-number">5.2.</span> <span class="nav-text">POST请求接口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#响应报文"><span class="nav-number">5.3.</span> <span class="nav-text">响应报文</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#文件上传"><span class="nav-number">6.</span> <span class="nav-text">文件上传</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Content-Type-直接指定文件类型"><span class="nav-number">6.1.</span> <span class="nav-text">Content-Type 直接指定文件类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#multipart-form-data方式"><span class="nav-number">6.2.</span> <span class="nav-text">multipart/form-data方式</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#下载"><span class="nav-number">7.</span> <span class="nav-text">下载</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#全文件下载"><span class="nav-number">7.1.</span> <span class="nav-text">全文件下载</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#部分下载（断点续传）"><span class="nav-number">7.2.</span> <span class="nav-text">部分下载（断点续传）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多线程下载工具"><span class="nav-number">7.3.</span> <span class="nav-text">多线程下载工具</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">不曾拥有</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">访问用户<span class="busuanzi-value" id="busuanzi_value_site_uv"></span></span>
+  
+
+  
+    <span class="site-pv">博客访问量<span class="busuanzi-value" id="busuanzi_value_site_pv"></span></span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"bucengyongyou"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+  
+
+  
+  
+  <!-- custom analytics part create by xiamo -->
+<script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+<script>AV.initialize("kNKleu3PkswnB7pW5oJ6hGeP-gzGzoHsz", "r6E7v9CeOLfby6w8lYi27W5c");</script>
+<script>
+function showTime(Counter) {
+	var query = new AV.Query(Counter);
+	$(".leancloud_visitors").each(function() {
+		var url = $(this).attr("id").trim();
+		query.equalTo("url", url);
+		query.find({
+			success: function(results) {
+				if (results.length == 0) {
+					var content = '0 ' + $(document.getElementById(url)).text();
+					$(document.getElementById(url)).text(content);
+					return;
+				}
+				for (var i = 0; i < results.length; i++) {
+					var object = results[i];
+					var content = object.get('time') + ' ' + $(document.getElementById(url)).text();
+					$(document.getElementById(url)).text(content);
+				}
+			},
+			error: function(object, error) {
+				console.log("Error: " + error.code + " " + error.message);
+			}
+		});
+
+	});
+}
+
+function addCount(Counter) {
+	var Counter = AV.Object.extend("Counter");
+	url = $(".leancloud_visitors").attr('id').trim();
+	title = $(".leancloud_visitors").attr('data-flag-title').trim();
+	var query = new AV.Query(Counter);
+	query.equalTo("url", url);
+	query.find({
+		success: function(results) {
+			if (results.length > 0) {
+				var counter = results[0];
+				counter.fetchWhenSave(true);
+				counter.increment("time");
+				counter.save(null, {
+					success: function(counter) {
+						var content =  counter.get('time') + ' ' + $(document.getElementById(url)).text();
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(counter, error) {
+						$(document.getElementById(url)).text(error.message);
+						console.log('Failed to save Visitor num, with error message: ' + error.message);
+					}
+				});
+			} else {
+				var newcounter = new Counter();
+				newcounter.set("title", title);
+				newcounter.set("url", url);
+				newcounter.set("time", 1);
+				newcounter.save(null, {
+					success: function(newcounter) {
+					    console.log("newcounter.get('time')="+newcounter.get('time'));
+						var content = newcounter.get('time') + ' ' + $(document.getElementById(url)).text();
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(newcounter, error) {
+						console.log('Failed to create');
+					}
+				});
+			}
+		},
+		error: function(error) {
+			console.log('Error:' + error.code + " " + error.message);
+		}
+	});
+}
+$(function() {
+	var Counter = AV.Object.extend("Counter");
+	if ($('.leancloud_visitors').length == 1) {
+		addCount(Counter);
+	} else if ($('.post-title-link').length > 1) {
+		showTime(Counter);
+	}
+}); 
+</script>
+  
+</body>
+</html>
