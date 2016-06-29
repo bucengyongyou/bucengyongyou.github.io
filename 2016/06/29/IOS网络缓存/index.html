@@ -1,0 +1,731 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="前言前面一篇文章HTTP协议之缓存介绍了HTTP协议中缓存是如何定义，客户端，服务端一般要如何根据HTTP中定义的这些字段来实现缓存逻辑
+接下来要着重分析一下IOS里面的网络框架，是如何进行网络缓存的本文使NSURLSession进行网络请求">
+<meta property="og:type" content="article">
+<meta property="og:title" content="IOS网络缓存">
+<meta property="og:url" content="http://yoursite.com/2016/06/29/IOS网络缓存/index.html">
+<meta property="og:site_name" content="不曾拥有的技术博客">
+<meta property="og:description" content="前言前面一篇文章HTTP协议之缓存介绍了HTTP协议中缓存是如何定义，客户端，服务端一般要如何根据HTTP中定义的这些字段来实现缓存逻辑
+接下来要着重分析一下IOS里面的网络框架，是如何进行网络缓存的本文使NSURLSession进行网络请求">
+<meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/67177E3C-1ECD-40B5-A980-AFC9B3C43C1C.png">
+<meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/8B248FE2-1399-48BD-B14D-4D839CFA130F.png">
+<meta property="og:updated_time" content="2016-06-29T15:15:35.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="IOS网络缓存">
+<meta name="twitter:description" content="前言前面一篇文章HTTP协议之缓存介绍了HTTP协议中缓存是如何定义，客户端，服务端一般要如何根据HTTP中定义的这些字段来实现缓存逻辑
+接下来要着重分析一下IOS里面的网络框架，是如何进行网络缓存的本文使NSURLSession进行网络请求">
+<meta name="twitter:image" content="http://7xiutw.com1.z0.glb.clouddn.com/67177E3C-1ECD-40B5-A980-AFC9B3C43C1C.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"hide"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> IOS网络缓存 | 不曾拥有的技术博客 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta custom-logo">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">不曾拥有的技术博客</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                IOS网络缓存
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-06-29T18:13:07+08:00" content="2016-06-29">
+              2016-06-29
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/06/29/IOS网络缓存/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/06/29/IOS网络缓存/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             &nbsp; | &nbsp;
+              <span id="/2016/06/29/IOS网络缓存/"class="leancloud_visitors" data-flag-title="IOS网络缓存">
+                       &nbsp;阅读次数
+                      </span>
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>前面一篇文章<a href="http://bucengyongyou.github.io/2016/06/28/HTTP%E5%8D%8F%E8%AE%AE%E4%B9%8B%E7%BC%93%E5%AD%98/" target="_blank" rel="external">HTTP协议之缓存</a>介绍了HTTP协议中缓存是如何定义，客户端，服务端一般要如何根据HTTP中定义的这些字段来实现缓存逻辑</p>
+<p>接下来要着重分析一下IOS里面的网络框架，是如何进行网络缓存的<br><strong>本文使NSURLSession进行网络请求</strong></p>
+<a id="more"></a>
+<h1 id="用什么缓存"><a href="#用什么缓存" class="headerlink" title="用什么缓存"></a>用什么缓存</h1><p>ios中的网络缓存主要用到 <strong>NSURLCache</strong>，结合<strong>NSURLSession</strong>,<strong>NSURLRequest</strong>,系统已经为我们做了大部分工作。<br>NSURLCache将缓存保存到应用程序沙盒<code>Library/Caches/xxx.xxx/</code>路径下<br><img src="http://7xiutw.com1.z0.glb.clouddn.com/67177E3C-1ECD-40B5-A980-AFC9B3C43C1C.png" alt=""></p>
+<p>用数据库来保存每个接口的缓存数据。<br>为什么要用数据库保存而不是以请求做文件名，以请求内容做文件内容保存，因为NSURLCache不光要保存请求的数据，还要保存很多额外的信息</p>
+<ul>
+<li>响应头信息（各种Cache-Control字段等等）</li>
+<li>缓存的版本</li>
+<li>时间戳</li>
+<li>一些其他的控制信息</li>
+</ul>
+<p>这些字段用来对缓存进行更好的控制，比如当缓存超过设置空间上限的时候，清理缓存的策略等等</p>
+<p><img src="http://7xiutw.com1.z0.glb.clouddn.com/8B248FE2-1399-48BD-B14D-4D839CFA130F.png" alt="Cached.db"></p>
+<h1 id="如何启用-禁用缓存"><a href="#如何启用-禁用缓存" class="headerlink" title="如何启用,禁用缓存"></a>如何启用,禁用缓存</h1><h2 id="启用缓存"><a href="#启用缓存" class="headerlink" title="启用缓存"></a>启用缓存</h2><p>系统已经为我们做了足够多的工作，我们只需要很少的步骤就能启用<strong>NSURLCache</strong>这套缓存系统</p>
+<p>如果我们使用系统默认的<code>NSURLSession *session=[NSURLSession sharedSession];</code>那么我们实际上不需要配置任何代码，因为系统默认的全局<code>NSURLSession</code>的<code>NSURLSessionConfiguration</code>里面已经默认配置了一个<code>NSURLCache</code>对象，这个<code>NSURLCache</code>对象也是一个系统默认的全局对象，可以通过<code>NSURLCache *cache=[NSURLCache sharedURLCache];</code>获得</p>
+<p>这样我们通过NSURLRequest成功返回的GET请求都会被缓存，注意请求被缓存与我们设置的NSURLRequest的cachePolicy无关</p>
+<p>当然我们也可以自己创建一个NSURLCache，自定义内存以及硬盘缓存的容量，并绑定到全局使用</p>
+<p>如下代码创建了一个缓存配置，并设置为全局共享缓存配置</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//新建一个缓存配置</span></span><br><span class="line">    <span class="built_in">NSURLCache</span> *cache=[[<span class="built_in">NSURLCache</span> alloc]initWithMemoryCapacity:<span class="number">10</span>*<span class="number">1024</span>*<span class="number">1024</span></span><br><span class="line">                                                   diskCapacity:<span class="number">50</span>*<span class="number">1024</span>*<span class="number">1024</span></span><br><span class="line">                                                       diskPath:<span class="literal">nil</span>];</span><br><span class="line">                                                     </span><br><span class="line"><span class="comment">//绑定到全局                     </span></span><br><span class="line">[<span class="built_in">NSURLCache</span> setSharedURLCache:cache];</span><br></pre></td></tr></table></figure>
+<p><strong>修改NSURLSessionConfiguration使用的缓存对象</strong><br>默认的NSURLSessionConfiguration使用的是系统创建的NSURLCache或者我们通过[NSURLCache setSharedURLCache:cache]配置的cache,我们也可以修改config的<code>URLCache</code>属性来直接指定一个NSURLCache对象</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//新建一个缓存配置</span></span><br><span class="line"><span class="built_in">NSURLCache</span> *cache=[[<span class="built_in">NSURLCache</span> alloc]initWithMemoryCapacity:<span class="number">10</span>*<span class="number">1024</span>*<span class="number">1024</span></span><br><span class="line">                                                   diskCapacity:<span class="number">50</span>*<span class="number">1024</span>*<span class="number">1024</span></span><br><span class="line">                                                       diskPath:<span class="literal">nil</span>];                                                       </span><br><span class="line">    <span class="built_in">NSURLSession</span> *session=[<span class="built_in">NSURLSession</span> sharedSession];</span><br><span class="line">    session.configuration.URLCache=cache;</span><br></pre></td></tr></table></figure>
+<h2 id="禁用缓存"><a href="#禁用缓存" class="headerlink" title="禁用缓存"></a>禁用缓存</h2><p>缓存的启用是通过为NSURLSessionConfiguration配置一个NSURLCache对象(默认的session,默认的config使用的是默认的NSURLCache对象)，那么缓存的禁用可以置空这个session的config.URLCache属性，这样这个session的所有请求都不会被缓存</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">NSURLSession</span> *session=[<span class="built_in">NSURLSession</span> sharedSession];</span><br><span class="line">session.configuration.URLCache=<span class="literal">nil</span>;</span><br></pre></td></tr></table></figure>
+<p>这种方式对这个session中的所有请求都生效，如果我们想只是针对单独的某个请求，可以实现NSURLSession 的delegate</p>
+<figure class="highlight erlang"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- <span class="params">(void)</span>URLSession:<span class="params">(NSURLSession *)</span>session dataTask:<span class="params">(NSURLSessionDataTask *)</span>dataTask</span><br><span class="line"> willCacheResponse:<span class="params">(NSCachedURLResponse *)</span>proposedResponse</span><br><span class="line"> completionHandler:<span class="params">(void (^)</span><span class="params">(NSCachedURLResponse * __nullable cachedResponse)</span>)completionHandler;</span><br></pre></td></tr></table></figure>
+<p>当某个请求将要被缓存的时候，会调用此delegate,在这里我们可以修改将要被缓存的response,同时决定是否缓存这个请求。如下代码修改response中的Cache-Control字段并缓存请求。</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)<span class="string">URLSession:</span>(NSURLSession *)session <span class="string">dataTask:</span>(NSURLSessionDataTask *)dataTask</span><br><span class="line"><span class="symbol"> willCacheResponse:</span>(NSCachedURLResponse *)proposedResponse</span><br><span class="line"><span class="symbol"> completionHandler:</span>(<span class="keyword">void</span> (^)(NSCachedURLResponse * __nullable cachedResponse))completionHandler</span><br><span class="line">&#123;</span><br><span class="line">    NSHTTPURLResponse *res= proposedResponse.response;</span><br><span class="line">    NSMutableDictionary *headers=res.allHeaderFields.mutableCopy;</span><br><span class="line">    [headers <span class="string">setObject:</span>@<span class="string">"max-age=1000000"</span> <span class="string">forKey:</span>@<span class="string">"Cache-Control"</span>];</span><br><span class="line">    NSHTTPURLResponse *<span class="keyword">final</span>=[[NSHTTPURLResponse alloc]<span class="string">initWithURL:</span>proposedResponse.response.URL <span class="string">statusCode:</span>res.statusCode <span class="string">HTTPVersion:</span>@<span class="string">"HTTP/1.1"</span> <span class="string">headerFields:</span>headers];</span><br><span class="line">    NSCachedURLResponse *cache=[[NSCachedURLResponse alloc]<span class="string">initWithResponse:</span><span class="keyword">final</span> <span class="string">data:</span>proposedResponse.data];</span><br><span class="line">    completionHandler(cache);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果不想缓存请求 调用<code>completionHandler(nil)</code>即可</p>
+<h1 id="IOS-CachePolicy"><a href="#IOS-CachePolicy" class="headerlink" title="IOS CachePolicy"></a>IOS CachePolicy</h1><p>首先说明，无论CachePolicy被设置成什么，只要session的config中配置了NSURLCache对象，那么，这个session中的GET请求就会执行缓存操作，当然是否缓存成功还要看是否实现了<code>willCacheResponse</code>这个delegate 进行控制。</p>
+<p>所以在IOS 这套网络框架里，CachePolicy不是决定是否缓存请求，而是决定，如何使用缓存</p>
+<p>在<code>NSURLSessionConfiguration</code>里面可以配置一个缓存策略</p>
+<figure class="highlight mipsasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">NSURLSessionConfiguration *<span class="built_in">config</span>=[NSURLSessionConfiguration defaultSessionConfiguration]<span class="comment">;</span></span><br><span class="line"> </span><br><span class="line"><span class="built_in">config</span>.requestCachePolicy=NSURLRequestUseProtocolCachePolicy<span class="comment">;</span></span><br></pre></td></tr></table></figure>
+<p>在请求的时候，每个NSURLRequest也可以单独配置一个缓存策略</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">NSMutableURLRequest</span> * request = [<span class="built_in">NSMutableURLRequest</span> requestWithURL:[<span class="built_in">NSURL</span> URLWithString:<span class="string">@"http://www.xxx.com"</span>]];</span><br><span class="line">    request.cachePolicy=<span class="built_in">NSURLRequestUseProtocolCachePolicy</span>;</span><br></pre></td></tr></table></figure>
+<p>经过测试，当NSURLRequest没有配置缓存策略的时候，会使用session的config配置的缓存策略，<br>如果NSURLRequest配置了缓存策略，那么使用NSURLRequest自己的缓存策略</p>
+<h2 id="NSURLRequestUseProtocolCachePolicy"><a href="#NSURLRequestUseProtocolCachePolicy" class="headerlink" title="NSURLRequestUseProtocolCachePolicy"></a>NSURLRequestUseProtocolCachePolicy</h2><p>使用HTTP协议定义的缓存字段来控制缓存行为，<strong>只支持</strong><code>Cache-control: max-age=xxx</code>这种形式，前面提到，如果配置了NSURLCache,每个GET请求都会被缓存，当相同的请求第二次请求的时候，查看缓存的响应头中是否包含<code>Cache-control: max-age=xxx</code></p>
+<p>如果不包含，那么根据HTTP协议的定义，这个请求是不需要被缓存的，所以，即使本地已经有缓存，也不会使用，而是重新发起网络请求</p>
+<p>如果包含<code>Cache-control: max-age=xxx</code>查看缓存是否已经失效，如果没失效，返回缓存数据，不发起请求，如果失效，那么重新发起网络请求</p>
+<h2 id="NSURLRequestReloadIgnoringLocalCacheData｜NSURLRequestReloadIgnoringCacheData"><a href="#NSURLRequestReloadIgnoringLocalCacheData｜NSURLRequestReloadIgnoringCacheData" class="headerlink" title="NSURLRequestReloadIgnoringLocalCacheData｜NSURLRequestReloadIgnoringCacheData"></a>NSURLRequestReloadIgnoringLocalCacheData｜NSURLRequestReloadIgnoringCacheData</h2><p>这两个策略的定义是一样的，都是忽略本地缓存，每次都发起网络请求</p>
+<h2 id="NSURLRequestReturnCacheDataElseLoad"><a href="#NSURLRequestReturnCacheDataElseLoad" class="headerlink" title="NSURLRequestReturnCacheDataElseLoad"></a>NSURLRequestReturnCacheDataElseLoad</h2><p>如果本地有缓存，使用缓存，不需要去判断<code>Cache-control: max-age=xxx</code>这些东西，如果没有缓存，发起网络请求</p>
+<h2 id="NSURLRequestReturnCacheDataDontLoad"><a href="#NSURLRequestReturnCacheDataDontLoad" class="headerlink" title="NSURLRequestReturnCacheDataDontLoad"></a>NSURLRequestReturnCacheDataDontLoad</h2><p>如果本地有缓存，使用缓存，不需要去判断<code>Cache-control: max-age=xxx</code>这些东西，如果没有缓存，返回失败，不进行网络请求，可以理解为离线模式</p>
+<h1 id="Last-Modified-ETag"><a href="#Last-Modified-ETag" class="headerlink" title="Last-Modified/ETag"></a>Last-Modified/ETag</h1><p>上面提到这么多缓存策略，其实与HTTP协议缓存相关的只有<code>NSURLRequestUseProtocolCachePolicy</code>这种缓存策略，只有在这种策略下，才会用到<code>Cache-control</code>这些东西，并且只支持Cache-control这种缓存逻辑，那么我们之前文章提到过的Last-Modified,Etag这种缓存逻辑要怎么实现呢。</p>
+<p>Last-Modified,Etag这两种缓存逻辑，没有被IOS封装进网络框架，所以如果我们想要支持这两种缓存逻辑，需要我们自己来实现。</p>
+<p>下面用Last-Modify的方式举一个例子</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">NSMutableURLRequest</span> * request = [<span class="built_in">NSMutableURLRequest</span> requestWithURL:[<span class="built_in">NSURL</span> URLWithString:<span class="string">@"http://wthrcdn.etouch.cn/weather_mini?city=北京"</span>]];</span><br><span class="line">   request.cachePolicy=<span class="built_in">NSURLRequestUseProtocolCachePolicy</span>;</span><br><span class="line">   request.HTTPMethod=<span class="string">@"GET"</span>;</span><br><span class="line">   <span class="comment">//查看当前请求是否有本地缓存</span></span><br><span class="line">   <span class="built_in">NSCachedURLResponse</span> *cacheResponse=[[<span class="built_in">NSURLCache</span> sharedURLCache] cachedResponseForRequest:request];</span><br><span class="line">   <span class="keyword">if</span> (cacheResponse) &#123;</span><br><span class="line">       <span class="built_in">NSHTTPURLResponse</span> *httpResponse=(<span class="built_in">NSHTTPURLResponse</span> *)cacheResponse.response;</span><br><span class="line">       <span class="comment">//拿到请求缓存的response header</span></span><br><span class="line">       <span class="built_in">NSDictionary</span> *header=httpResponse.allHeaderFields;</span><br><span class="line">       <span class="comment">//查看header是否存在Last-Modified字段，如果有的话，为本次请求头增加If-Modified-Since字段</span></span><br><span class="line">       <span class="built_in">NSString</span> *lastModify=[header objectForKey:<span class="string">@"Last-Modified"</span>];</span><br><span class="line">       <span class="keyword">if</span> (lastModify) &#123;</span><br><span class="line">           [request setValue:lastModify forHTTPHeaderField:<span class="string">@"If-Modified-Since"</span>];</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line">   </span><br><span class="line">     <span class="built_in">NSURLSessionDataTask</span> *task=[<span class="keyword">self</span>.session dataTaskWithRequest:request completionHandler:^(<span class="built_in">NSData</span> * _Nullable data, <span class="built_in">NSURLResponse</span> * _Nullable response, <span class="built_in">NSError</span> * _Nullable error) &#123;</span><br><span class="line">       </span><br><span class="line">       <span class="built_in">NSHTTPURLResponse</span> *httpResponse = (<span class="built_in">NSHTTPURLResponse</span> *)response;</span><br><span class="line">       <span class="built_in">NSLog</span>(<span class="string">@"statusCode == %@"</span>, @(httpResponse.statusCode));</span><br><span class="line">       <span class="comment">// 判断响应的状态码是否是 304 Not Modified</span></span><br><span class="line">       <span class="keyword">if</span> (httpResponse.statusCode == <span class="number">304</span>) &#123;</span><br><span class="line">           <span class="comment">// 如果是，使用本地缓存</span></span><br><span class="line">           <span class="comment">// 根据请求获取到`被缓存的响应`！</span></span><br><span class="line">           <span class="built_in">NSCachedURLResponse</span> *cacheResponse =  [[<span class="built_in">NSURLCache</span> sharedURLCache] cachedResponseForRequest:request];</span><br><span class="line">           <span class="comment">// 拿到缓存的数据</span></span><br><span class="line">           completion(cacheResponse.data);</span><br><span class="line">           <span class="keyword">return</span>;</span><br><span class="line">       &#125;</span><br><span class="line">       </span><br><span class="line">       <span class="comment">//返回200 使用服务端返回的新数据</span></span><br><span class="line">       completion(data);</span><br><span class="line">   &#125;];</span><br><span class="line"></span><br><span class="line">   [<span class="keyword">self</span>.task resume];</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/06/28/HTTP协议之缓存/" rel="next" title="HTTP协议之缓存">
+                <i class="fa fa-chevron-left"></i> HTTP协议之缓存
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/06/29/IOS网络缓存/"
+           data-title="IOS网络缓存" data-url="http://yoursite.com/2016/06/29/IOS网络缓存/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/portrait.png"
+               alt="不曾拥有" />
+          <p class="site-author-name" itemprop="name">不曾拥有</p>
+          <p class="site-description motion-element" itemprop="description">不曾拥有的技术博客</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">5</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#用什么缓存"><span class="nav-number">2.</span> <span class="nav-text">用什么缓存</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#如何启用-禁用缓存"><span class="nav-number">3.</span> <span class="nav-text">如何启用,禁用缓存</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#启用缓存"><span class="nav-number">3.1.</span> <span class="nav-text">启用缓存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#禁用缓存"><span class="nav-number">3.2.</span> <span class="nav-text">禁用缓存</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#IOS-CachePolicy"><span class="nav-number">4.</span> <span class="nav-text">IOS CachePolicy</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#NSURLRequestUseProtocolCachePolicy"><span class="nav-number">4.1.</span> <span class="nav-text">NSURLRequestUseProtocolCachePolicy</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NSURLRequestReloadIgnoringLocalCacheData｜NSURLRequestReloadIgnoringCacheData"><span class="nav-number">4.2.</span> <span class="nav-text">NSURLRequestReloadIgnoringLocalCacheData｜NSURLRequestReloadIgnoringCacheData</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NSURLRequestReturnCacheDataElseLoad"><span class="nav-number">4.3.</span> <span class="nav-text">NSURLRequestReturnCacheDataElseLoad</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NSURLRequestReturnCacheDataDontLoad"><span class="nav-number">4.4.</span> <span class="nav-text">NSURLRequestReturnCacheDataDontLoad</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Last-Modified-ETag"><span class="nav-number">5.</span> <span class="nav-text">Last-Modified/ETag</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">不曾拥有</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">访问用户<span class="busuanzi-value" id="busuanzi_value_site_uv"></span></span>
+  
+
+  
+    <span class="site-pv">博客访问量<span class="busuanzi-value" id="busuanzi_value_site_pv"></span></span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"bucengyongyou"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+  
+
+  
+  
+  <!-- custom analytics part create by xiamo -->
+<script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+<script>AV.initialize("kNKleu3PkswnB7pW5oJ6hGeP-gzGzoHsz", "r6E7v9CeOLfby6w8lYi27W5c");</script>
+<script>
+function showTime(Counter) {
+	var query = new AV.Query(Counter);
+	$(".leancloud_visitors").each(function() {
+		var url = $(this).attr("id").trim();
+		query.equalTo("url", url);
+		query.find({
+			success: function(results) {
+				if (results.length == 0) {
+					var content = '0 ' + $(document.getElementById(url)).text();
+					$(document.getElementById(url)).text(content);
+					return;
+				}
+				for (var i = 0; i < results.length; i++) {
+					var object = results[i];
+					var content = object.get('time') + ' ' + $(document.getElementById(url)).text();
+					$(document.getElementById(url)).text(content);
+				}
+			},
+			error: function(object, error) {
+				console.log("Error: " + error.code + " " + error.message);
+			}
+		});
+
+	});
+}
+
+function addCount(Counter) {
+	var Counter = AV.Object.extend("Counter");
+	url = $(".leancloud_visitors").attr('id').trim();
+	title = $(".leancloud_visitors").attr('data-flag-title').trim();
+	var query = new AV.Query(Counter);
+	query.equalTo("url", url);
+	query.find({
+		success: function(results) {
+			if (results.length > 0) {
+				var counter = results[0];
+				counter.fetchWhenSave(true);
+				counter.increment("time");
+				counter.save(null, {
+					success: function(counter) {
+						var content =  counter.get('time') + ' ' + $(document.getElementById(url)).text();
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(counter, error) {
+						$(document.getElementById(url)).text(error.message);
+						console.log('Failed to save Visitor num, with error message: ' + error.message);
+					}
+				});
+			} else {
+				var newcounter = new Counter();
+				newcounter.set("title", title);
+				newcounter.set("url", url);
+				newcounter.set("time", 1);
+				newcounter.save(null, {
+					success: function(newcounter) {
+					    console.log("newcounter.get('time')="+newcounter.get('time'));
+						var content = newcounter.get('time') + ' ' + $(document.getElementById(url)).text();
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(newcounter, error) {
+						console.log('Failed to create');
+					}
+				});
+			}
+		},
+		error: function(error) {
+			console.log('Error:' + error.code + " " + error.message);
+		}
+	});
+}
+$(function() {
+	var Counter = AV.Object.extend("Counter");
+	if ($('.leancloud_visitors').length == 1) {
+		addCount(Counter);
+	} else if ($('.post-title-link').length > 1) {
+		showTime(Counter);
+	}
+}); 
+</script>
+  
+</body>
+</html>
