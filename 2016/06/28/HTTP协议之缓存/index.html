@@ -1,0 +1,720 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="前言上一篇文章HTTP 协议学习笔记主要分析了HTTP协议的一般请求原理，本文将着重分析，HTTP协议中的缓存
+HTTP协议中定义了一些缓存控制相关的字段，属性，能够用来实现不同的缓存策略，但是注意，这些字段，属性，仅仅是HTTP协议中预先定义好的内容，具体怎么实现，还要我们的客户端，服务端，分别实现不同的逻辑才行">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HTTP协议之缓存">
+<meta property="og:url" content="http://yoursite.com/2016/06/28/HTTP协议之缓存/index.html">
+<meta property="og:site_name" content="不曾拥有的技术博客">
+<meta property="og:description" content="前言上一篇文章HTTP 协议学习笔记主要分析了HTTP协议的一般请求原理，本文将着重分析，HTTP协议中的缓存
+HTTP协议中定义了一些缓存控制相关的字段，属性，能够用来实现不同的缓存策略，但是注意，这些字段，属性，仅仅是HTTP协议中预先定义好的内容，具体怎么实现，还要我们的客户端，服务端，分别实现不同的逻辑才行">
+<meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/015343_psx2_568818.png">
+<meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/015353_P04w_568818.png">
+<meta property="og:updated_time" content="2016-06-29T03:31:35.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="HTTP协议之缓存">
+<meta name="twitter:description" content="前言上一篇文章HTTP 协议学习笔记主要分析了HTTP协议的一般请求原理，本文将着重分析，HTTP协议中的缓存
+HTTP协议中定义了一些缓存控制相关的字段，属性，能够用来实现不同的缓存策略，但是注意，这些字段，属性，仅仅是HTTP协议中预先定义好的内容，具体怎么实现，还要我们的客户端，服务端，分别实现不同的逻辑才行">
+<meta name="twitter:image" content="http://7xiutw.com1.z0.glb.clouddn.com/015343_psx2_568818.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"hide"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> HTTP协议之缓存 | 不曾拥有的技术博客 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta custom-logo">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">不曾拥有的技术博客</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                HTTP协议之缓存
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-06-28T22:51:06+08:00" content="2016-06-28">
+              2016-06-28
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/06/28/HTTP协议之缓存/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/06/28/HTTP协议之缓存/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             &nbsp; | &nbsp;
+              <span id="/2016/06/28/HTTP协议之缓存/"class="leancloud_visitors" data-flag-title="HTTP协议之缓存">
+                       &nbsp;阅读次数
+                      </span>
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>上一篇文章<a href="http://bucengyongyou.github.io/2016/06/27/HTTP-%E5%8D%8F%E8%AE%AE%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" target="_blank" rel="external">HTTP 协议学习笔记</a>主要分析了HTTP协议的一般请求原理，本文将着重分析，HTTP协议中的缓存</p>
+<p>HTTP协议中定义了一些缓存控制相关的字段，属性，能够用来实现不同的缓存策略，但是注意，这些字段，属性，仅仅是HTTP协议中预先定义好的内容，具体怎么实现，还要我们的客户端，服务端，分别实现不同的逻辑才行</p>
+<a id="more"></a>
+<h1 id="缓存相关字段"><a href="#缓存相关字段" class="headerlink" title="缓存相关字段"></a>缓存相关字段</h1><h2 id="响应头"><a href="#响应头" class="headerlink" title="响应头"></a>响应头</h2><p><strong>cache-control：</strong> 对应如下一些属性</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">public	所有内容都将被缓存(客户端和代理服务器都可缓存)</span><br><span class="line">private	内容只缓存到私有缓存中(仅客户端可以缓存，代理服务器不可缓存)</span><br><span class="line">no-<span class="keyword">cache</span>	必须先与服务器确认返回的响应是否被更改，然后才能使用该响应来满足后续对同一个网址的请求。因此，如果存在合适的验证令牌 (ETag)，<span class="keyword">no</span>-<span class="keyword">cache</span> 会发起往返通信来验证缓存的响应，如果资源未被更改，可以避免下载。</span><br><span class="line"><span class="keyword">no</span>-<span class="keyword">store</span>	所有内容都不会被缓</span><br><span class="line">must-revalidation/proxy-revalidation	如果缓存的内容失效，请求必须发送到服务器/代理以进行重新验证</span><br><span class="line"><span class="keyword">max</span>-age=xxx (xxx <span class="keyword">is</span> <span class="built_in">numeric</span>)	缓存的内容将在 xxx 秒后失效, 这个选项只在<span class="keyword">HTTP</span> <span class="number">1.1</span>可用, 并如果和<span class="keyword">Last</span>-Modified一起使用时, 优先级较高</span><br></pre></td></tr></table></figure>
+<p>举个例子，当客户端收到服务端响应，发现header 中有cache-control 字段，并且属性为 mas-age=10,即表示，这个接口的返回数据需要缓存，并且缓存内容在10秒后过期，那么客户端应该将接口数据保存起来，并记录保存的时间，下次请求的时候，对时间进行对比，如果缓存没有失效，那么就不再进行网络请求，直接返回缓存数据，如果缓存失效，那么重新请求网络数据</p>
+<p><strong>如果和Last-Modified一起使用时, 优先级较高</strong></p>
+<p><strong>Last-Modified</strong><br>表示请求的资源最后被修改的时间，对应的请求头中需要添加<code>If-Modified-Since</code>字段</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">Last-Modified</span>: <span class="selector-tag">Mon</span>, 26 <span class="selector-tag">Apr</span> 2010 13<span class="selector-pseudo">:22</span><span class="selector-pseudo">:17</span> <span class="selector-tag">GMT</span></span><br></pre></td></tr></table></figure>
+<p><strong>ETag</strong></p>
+<p>表示请求的资源的标识，这个标识可以是任意算法得到的，具体以服务端实现为准，一般来说，资源改变的话ETag就需要改变，这个字段需要对应<code>请求头</code>中的<code>If-None-Match</code>来使用</p>
+<figure class="highlight avrasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">ETag:</span> <span class="string">"92c027-897-4bd59389"</span></span><br></pre></td></tr></table></figure>
+<h2 id="请求头"><a href="#请求头" class="headerlink" title="请求头"></a>请求头</h2><p><strong>If-Modified-Since</strong><br>在请求数据的时候询问服务端，我所请求的数据从If-Modified-Since 指定的日期开始，是否有修改，如果有修改，服务端返回200 然后返回全部数据，如果没有修改，返回304,客户端使用本地缓存</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">If-Modified-Since</span>: <span class="selector-tag">Fri</span>, 12 <span class="selector-tag">May</span> 2006 18<span class="selector-pseudo">:53</span><span class="selector-pseudo">:33</span> <span class="selector-tag">GMT</span></span><br></pre></td></tr></table></figure>
+<p><strong>If-None-Match:</strong> ETag<br>在请求数据的时候询问服务端，我所请求的数据的标识是否匹配 If-None-Match 指定的值，如果匹配，说明ETag没有改变，服务端返回304,客户端使用本地数据，否则服务端返回200，并返回全部数据</p>
+<figure class="highlight cos"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">If</span>-None-Match: <span class="keyword">W</span>/<span class="string">"50b1c1d4f775c61:df3"</span></span><br></pre></td></tr></table></figure>
+<h1 id="具体缓存逻辑"><a href="#具体缓存逻辑" class="headerlink" title="具体缓存逻辑"></a>具体缓存逻辑</h1><h2 id="cache-control-Only"><a href="#cache-control-Only" class="headerlink" title="cache-control   Only"></a>cache-control   Only</h2><p><strong>第一次请求</strong></p>
+<p>当客户端第一次请求的时候，本地肯定没有缓存，此时服务端返回<code>cache-control : max-age=1000</code>,服务端告诉客户端，此次请求的内容需要被缓存，并且缓存在1000秒后失效，客户端收到响应后，解析响应头，发现存在<code>cache-control : max-age=1000</code>,将请求数据保存，key为接口url以及参数拼接成的字符串</p>
+<p><strong>第二次请求</strong><br>客户端发出同样的请求，首先从本地查找是否存在缓存文件，发现缓存文件，检查是否在有效期内，如果在有效期内，直接返回缓存数据，不做网络请求，如果缓存已经失效，重新请求数据</p>
+<h2 id="cache-control＋Last-Modified"><a href="#cache-control＋Last-Modified" class="headerlink" title="cache-control＋Last-Modified"></a>cache-control＋Last-Modified</h2><p><strong>第一次请求</strong></p>
+<p>当客户端第一次请求的时候，本地肯定没有缓存，此时服务端返回<code>cache-control : max-age=1000</code>,服务端告诉客户端，此次请求的内容需要被缓存，并且缓存在1000秒后失效<br>客户端收到响应后，解析响应头，发现存在<code>cache-control : max-age=1000</code>,将请求数据保存，key为接口url以及参数拼接成的字符串<br>发现存在<code>Last-Modified: Mon, 26 Apr 2010 13:22:17 GMT</code>,将Last-Modified 时间保存起来，key为接口url以及参数拼接成的字符串</p>
+<p><strong>第二次请求</strong><br>客户端发出同样的请求，首先从本地查找是否存在缓存文件，发现缓存文件，检查是否在有效期内，如果在有效期内，直接返回缓存数据，不做网络请求</p>
+<p>如果缓存已经失效，重新请求数据，由于对应的key 存在Last-Modified字段，所以请求的时候需要在请求头额外添加<code>If-Modified-Since: Mon, 26 Apr 2010 13:22:17 GMT</code> 向服务端询问，数据从If-Modified-Since 提供的日期开始是否修改过</p>
+<p>服务端接到请求，检查数据是否修改过，如果修改过，返回200 并返回全部最新数据，如果没有修改过，返回304</p>
+<p>客户端收到304继续使用本地缓存</p>
+<h2 id="cache-control＋ETag"><a href="#cache-control＋ETag" class="headerlink" title="cache-control＋ETag"></a>cache-control＋ETag</h2><p>逻辑上与<code>cache-control＋Last-Modified</code>是一样的，只不过 服务端返回的<code>Last-Modified: Mon, 26 Apr 2010 13:22:17 GMT</code>变成了<code>ETag: &quot;92c027-897-4bd59389&quot;</code></p>
+<p>客户端请求的<code>If-Modified-Since: Mon, 26 Apr 2010 13:22:17 GMT</code>变成了<code>If-None-Match: W/&quot;50b1c1d4f775c61:df3&quot;</code></p>
+<blockquote>
+<p>服务端缓存的字段中 cache-control的优先级最高</p>
+</blockquote>
+<h2 id="流程图"><a href="#流程图" class="headerlink" title="流程图"></a>流程图</h2><p>第一次请求</p>
+<p><img src="http://7xiutw.com1.z0.glb.clouddn.com/015343_psx2_568818.png" alt=""></p>
+<p>第二次请求</p>
+<p><img src="http://7xiutw.com1.z0.glb.clouddn.com/015353_P04w_568818.png" alt=""></p>
+
+      
+    </div>
+    
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/06/27/HTTP-协议学习笔记/" rel="next" title="HTTP 协议学习笔记">
+                <i class="fa fa-chevron-left"></i> HTTP 协议学习笔记
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/06/28/HTTP协议之缓存/"
+           data-title="HTTP协议之缓存" data-url="http://yoursite.com/2016/06/28/HTTP协议之缓存/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/portrait.png"
+               alt="不曾拥有" />
+          <p class="site-author-name" itemprop="name">不曾拥有</p>
+          <p class="site-description motion-element" itemprop="description">不曾拥有的技术博客</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">4</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#缓存相关字段"><span class="nav-number">2.</span> <span class="nav-text">缓存相关字段</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#响应头"><span class="nav-number">2.1.</span> <span class="nav-text">响应头</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#请求头"><span class="nav-number">2.2.</span> <span class="nav-text">请求头</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#具体缓存逻辑"><span class="nav-number">3.</span> <span class="nav-text">具体缓存逻辑</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#cache-control-Only"><span class="nav-number">3.1.</span> <span class="nav-text">cache-control   Only</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cache-control＋Last-Modified"><span class="nav-number">3.2.</span> <span class="nav-text">cache-control＋Last-Modified</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cache-control＋ETag"><span class="nav-number">3.3.</span> <span class="nav-text">cache-control＋ETag</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#流程图"><span class="nav-number">3.4.</span> <span class="nav-text">流程图</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">不曾拥有</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">访问用户<span class="busuanzi-value" id="busuanzi_value_site_uv"></span></span>
+  
+
+  
+    <span class="site-pv">博客访问量<span class="busuanzi-value" id="busuanzi_value_site_pv"></span></span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"bucengyongyou"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+  
+
+  
+  
+  <!-- custom analytics part create by xiamo -->
+<script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+<script>AV.initialize("kNKleu3PkswnB7pW5oJ6hGeP-gzGzoHsz", "r6E7v9CeOLfby6w8lYi27W5c");</script>
+<script>
+function showTime(Counter) {
+	var query = new AV.Query(Counter);
+	$(".leancloud_visitors").each(function() {
+		var url = $(this).attr("id").trim();
+		query.equalTo("url", url);
+		query.find({
+			success: function(results) {
+				if (results.length == 0) {
+					var content = '0 ' + $(document.getElementById(url)).text();
+					$(document.getElementById(url)).text(content);
+					return;
+				}
+				for (var i = 0; i < results.length; i++) {
+					var object = results[i];
+					var content = object.get('time') + ' ' + $(document.getElementById(url)).text();
+					$(document.getElementById(url)).text(content);
+				}
+			},
+			error: function(object, error) {
+				console.log("Error: " + error.code + " " + error.message);
+			}
+		});
+
+	});
+}
+
+function addCount(Counter) {
+	var Counter = AV.Object.extend("Counter");
+	url = $(".leancloud_visitors").attr('id').trim();
+	title = $(".leancloud_visitors").attr('data-flag-title').trim();
+	var query = new AV.Query(Counter);
+	query.equalTo("url", url);
+	query.find({
+		success: function(results) {
+			if (results.length > 0) {
+				var counter = results[0];
+				counter.fetchWhenSave(true);
+				counter.increment("time");
+				counter.save(null, {
+					success: function(counter) {
+						var content =  counter.get('time') + ' ' + $(document.getElementById(url)).text();
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(counter, error) {
+						$(document.getElementById(url)).text(error.message);
+						console.log('Failed to save Visitor num, with error message: ' + error.message);
+					}
+				});
+			} else {
+				var newcounter = new Counter();
+				newcounter.set("title", title);
+				newcounter.set("url", url);
+				newcounter.set("time", 1);
+				newcounter.save(null, {
+					success: function(newcounter) {
+					    console.log("newcounter.get('time')="+newcounter.get('time'));
+						var content = newcounter.get('time') + ' ' + $(document.getElementById(url)).text();
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(newcounter, error) {
+						console.log('Failed to create');
+					}
+				});
+			}
+		},
+		error: function(error) {
+			console.log('Error:' + error.code + " " + error.message);
+		}
+	});
+}
+$(function() {
+	var Counter = AV.Object.extend("Counter");
+	if ($('.leancloud_visitors').length == 1) {
+		addCount(Counter);
+	} else if ($('.post-title-link').length > 1) {
+		showTime(Counter);
+	}
+}); 
+</script>
+  
+</body>
+</html>
