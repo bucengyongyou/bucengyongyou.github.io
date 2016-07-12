@@ -239,6 +239,125 @@
             
               
                 
+                <a class="post-title-link" href="/2016/07/12/IOS之HTTPS学习笔记/" itemprop="url">
+                  IOS之HTTPS学习笔记
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-07-12T15:56:46+08:00" content="2016-07-12">
+              2016-07-12
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/07/12/IOS之HTTPS学习笔记/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/07/12/IOS之HTTPS学习笔记/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             &nbsp; | &nbsp;
+              <span id="/2016/07/12/IOS之HTTPS学习笔记/"class="leancloud_visitors" data-flag-title="IOS之HTTPS学习笔记">
+                       &nbsp;阅读次数
+                      </span>
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <p>本文前半部分介绍HTTPS的概念以及工作原理，后半部分着重介绍IOS网络请求怎么使用HTTPS</p>
+<h1 id="HTTPS概念"><a href="#HTTPS概念" class="headerlink" title="HTTPS概念"></a>HTTPS概念</h1><ul>
+<li>HTTP: Hyper Text Transfer Protocol;</li>
+<li>HTTPS: Hyper Text Transfer Protocol over Secure Socket Layer;</li>
+</ul>
+<p>我们看到HTTPS与HTTP相比，简称上多了一个S,名称上面多了一个<strong>Secure Socket Layer</strong>,实际上HTTPS=HTTP+SSL/TLS</p>
+<p>HTTP协议的概念以及工作原理我们前面的文章已经介绍的很详细了，我们知道HTTP是应用层协议，建立在传输层协议(TCP/IP)上，那么HTTPS就是在应用层协议(HTTP)与传输层协议(TCP/IP)中间增加一个安全加密层（SSL/TLS）</p>
+<p>在没有SSL/TLS层的时候，传输层(TCP/IP)发送的报文的数据域是明文的HTTP报文，当有SSL/TLS层的时候，传输层(TCP/IP)发送的报文的数据域是被SSL/TLS层加密的HTTP报文</p>
+<p>在没有SSL/TLS层的时候 应用层获取到的数据是明文HTTP报文，当有SSL/TLS层的时候，应用层，收到的数据需要经过SSL/TLS层的处理，还原HTTP报文</p>
+<p>上面只是用通俗的语言简单的介绍了一下HTTPS的概念，当然其工作原理要复杂很多，主要的工作都集中在了SSL/TLS层，通过这里我们也能看出，计算机网络这种分层架构设计的巧妙，增加中间一层，其他层几乎不需要改动就能增加新的特性<br>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/07/12/IOS之HTTPS学习笔记/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+    
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/06/29/IOS网络缓存/" itemprop="url">
                   IOS网络缓存
                 </a>
@@ -819,7 +938,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">5</span>
+              <span class="site-state-item-count">6</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
