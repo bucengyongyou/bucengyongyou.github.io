@@ -87,10 +87,10 @@
 <meta property="og:site_name" content="不曾拥有的技术博客">
 <meta property="og:description" content="前言这个系列讲主要介绍一些提高iOS开发效率的命令行工具，利用这些方便的命令，我们可以写出各种脚本用来提高我们的生产力，本篇主要介绍，利用脚本实现工程Archive,Export出Release包，然后上传到AppStore。与传统的打包上传操作相比，我们只需要在命令行之行脚本命令即可，大大的提高了工作效率，并且，个人感觉，通过命令行上传包到AppStore的过程会更快一些（通常在试用xcode">
 <meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/6C98BBDC-6E9D-4F48-857D-B36D926757CF.png">
-<meta property="og:image" content="http://yoursite.com/Users/zhangxu/Library/Containers/com.tencent.qq/Data/Library/Application Support/QQ/Users/285889663/QQ/Temp.db/B3A2EAC5-1E91-4FC9-AEAC-8A300FDF2634.png">
+<meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/B3A2EAC5-1E91-4FC9-AEAC-8A300FDF2634.png">
 <meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/AE709C91-5E08-4296-82DE-58338395016B.png">
 <meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/9D03BE90-88A7-4261-B6FB-54C94A634DC9.png">
-<meta property="og:updated_time" content="2016-07-15T09:25:34.000Z">
+<meta property="og:updated_time" content="2016-07-15T09:29:30.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="iOS脚本系列之Archive Export Upload到AppStore">
 <meta name="twitter:description" content="前言这个系列讲主要介绍一些提高iOS开发效率的命令行工具，利用这些方便的命令，我们可以写出各种脚本用来提高我们的生产力，本篇主要介绍，利用脚本实现工程Archive,Export出Release包，然后上传到AppStore。与传统的打包上传操作相比，我们只需要在命令行之行脚本命令即可，大大的提高了工作效率，并且，个人感觉，通过命令行上传包到AppStore的过程会更快一些（通常在试用xcode">
@@ -309,7 +309,7 @@
 <p><strong>完整用例</strong></p>
 <figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xcodebuild archive -workspace xxx<span class="selector-class">.xcworkspace</span> -scheme <span class="string">"targetScheme"</span> -archivePath Archive/test</span><br></pre></td></tr></table></figure>
 <p>在当前目录的Archive文件夹里面就会出现 test.Archive文件<br><img src="http://7xiutw.com1.z0.glb.clouddn.com/6C98BBDC-6E9D-4F48-857D-B36D926757CF.png" alt=""></p>
-<h1 id="Export"><a href="#Export" class="headerlink" title="Export"></a>Export</h1><p>有了archive文件，接下来需要从archive文件里Export出Release包，相当于下图的操作<br><img src="/Users/zhangxu/Library/Containers/com.tencent.qq/Data/Library/Application Support/QQ/Users/285889663/QQ/Temp.db/B3A2EAC5-1E91-4FC9-AEAC-8A300FDF2634.png" alt=""></p>
+<h1 id="Export"><a href="#Export" class="headerlink" title="Export"></a>Export</h1><p>有了archive文件，接下来需要从archive文件里Export出Release包，相当于下图的操作<br><img src="http://7xiutw.com1.z0.glb.clouddn.com/B3A2EAC5-1E91-4FC9-AEAC-8A300FDF2634.png" alt=""></p>
 <p>同样使用xcodebuild 命令行工具进行导出</p>
 <p><strong>Export 命令</strong></p>
 <figure class="highlight elm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">xcodebuild</span>  -exportArchive</span><br></pre></td></tr></table></figure>
