@@ -1,0 +1,737 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="前言这个系列讲主要介绍一些提高iOS开发效率的命令行工具，利用这些方便的命令，我们可以写出各种脚本用来提高我们的生产力，本篇主要介绍，利用脚本实现工程Archive,Export出Release包，然后上传到AppStore。与传统的打包上传操作相比，我们只需要在命令行之行脚本命令即可，大大的提高了工作效率，并且，个人感觉，通过命令行上传包到AppStore的过程会更快一些（通常在试用xcode">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS脚本系列之Archive Export Upload到AppStore">
+<meta property="og:url" content="http://yoursite.com/2016/07/15/iOS脚本系列之Archive-Export-Upload到AppStore/index.html">
+<meta property="og:site_name" content="不曾拥有的技术博客">
+<meta property="og:description" content="前言这个系列讲主要介绍一些提高iOS开发效率的命令行工具，利用这些方便的命令，我们可以写出各种脚本用来提高我们的生产力，本篇主要介绍，利用脚本实现工程Archive,Export出Release包，然后上传到AppStore。与传统的打包上传操作相比，我们只需要在命令行之行脚本命令即可，大大的提高了工作效率，并且，个人感觉，通过命令行上传包到AppStore的过程会更快一些（通常在试用xcode">
+<meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/6C98BBDC-6E9D-4F48-857D-B36D926757CF.png">
+<meta property="og:image" content="http://yoursite.com/Users/zhangxu/Library/Containers/com.tencent.qq/Data/Library/Application Support/QQ/Users/285889663/QQ/Temp.db/B3A2EAC5-1E91-4FC9-AEAC-8A300FDF2634.png">
+<meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/AE709C91-5E08-4296-82DE-58338395016B.png">
+<meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/9D03BE90-88A7-4261-B6FB-54C94A634DC9.png">
+<meta property="og:updated_time" content="2016-07-15T09:25:34.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="iOS脚本系列之Archive Export Upload到AppStore">
+<meta name="twitter:description" content="前言这个系列讲主要介绍一些提高iOS开发效率的命令行工具，利用这些方便的命令，我们可以写出各种脚本用来提高我们的生产力，本篇主要介绍，利用脚本实现工程Archive,Export出Release包，然后上传到AppStore。与传统的打包上传操作相比，我们只需要在命令行之行脚本命令即可，大大的提高了工作效率，并且，个人感觉，通过命令行上传包到AppStore的过程会更快一些（通常在试用xcode">
+<meta name="twitter:image" content="http://7xiutw.com1.z0.glb.clouddn.com/6C98BBDC-6E9D-4F48-857D-B36D926757CF.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"hide"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> iOS脚本系列之Archive Export Upload到AppStore | 不曾拥有的技术博客 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta custom-logo">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">不曾拥有的技术博客</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                iOS脚本系列之Archive Export Upload到AppStore
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-07-15T15:38:27+08:00" content="2016-07-15">
+              2016-07-15
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/07/15/iOS脚本系列之Archive-Export-Upload到AppStore/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/07/15/iOS脚本系列之Archive-Export-Upload到AppStore/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             &nbsp; | &nbsp;
+              <span id="/2016/07/15/iOS脚本系列之Archive-Export-Upload到AppStore/"class="leancloud_visitors" data-flag-title="iOS脚本系列之Archive Export Upload到AppStore">
+                       &nbsp;阅读次数
+                      </span>
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>这个系列讲主要介绍一些提高iOS开发效率的命令行工具，利用这些方便的命令，我们可以写出各种脚本用来提高我们的生产力，本篇主要介绍，利用脚本实现工程Archive,Export出Release包，然后上传到AppStore。<br>与传统的打包上传操作相比，我们只需要在命令行之行脚本命令即可，大大的提高了工作效率，并且，个人感觉，通过命令行上传包到AppStore的过程会更快一些（通常在试用xcode upload或者Application Loader要等很久），<br>并且由于使用脚本，我们可以很容易的实现批量打包上传AppStore。在这一点上节省的人力尤为明显</p>
+<blockquote>
+<p>本系列不是专业的shell 脚本教程，而是更加面向功能，所以一些shell的用法可能并不专业，所以如果你感到不适，<del>来打我啊！</del> 可以只参考思路哈。</p>
+</blockquote>
+<a id="more"></a>
+<h1 id="Archive"><a href="#Archive" class="headerlink" title="Archive"></a>Archive</h1><p>通过xcodebuild 命令行工具实现，xcodebuild是xcode提供的命令行工具，我们在xcode中的大部分编译操作，都能通过这个命令行工具实现</p>
+<p><strong>Archive命令</strong></p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">xcodebuild</span> archive</span><br></pre></td></tr></table></figure>
+<p><strong>参数</strong></p>
+<figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">-<span class="ruby">workspace   指定workspace  -workspace  xxx.xcworkspace</span><br><span class="line"></span>-<span class="ruby">scheme   指定build 的scheme -scheme <span class="string">"xxxxx"</span>  没有引号也可以</span><br><span class="line"></span>-<span class="ruby">archivePath  指定archive输出目录 可以用相对路径  out/aaa   (在当前目录中的out 文件夹下面 输出aaa.archive文件)</span></span><br></pre></td></tr></table></figure>
+<p><strong>完整用例</strong></p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xcodebuild archive -workspace xxx<span class="selector-class">.xcworkspace</span> -scheme <span class="string">"targetScheme"</span> -archivePath Archive/test</span><br></pre></td></tr></table></figure>
+<p>在当前目录的Archive文件夹里面就会出现 test.Archive文件<br><img src="http://7xiutw.com1.z0.glb.clouddn.com/6C98BBDC-6E9D-4F48-857D-B36D926757CF.png" alt=""></p>
+<h1 id="Export"><a href="#Export" class="headerlink" title="Export"></a>Export</h1><p>有了archive文件，接下来需要从archive文件里Export出Release包，相当于下图的操作<br><img src="/Users/zhangxu/Library/Containers/com.tencent.qq/Data/Library/Application Support/QQ/Users/285889663/QQ/Temp.db/B3A2EAC5-1E91-4FC9-AEAC-8A300FDF2634.png" alt=""></p>
+<p>同样使用xcodebuild 命令行工具进行导出</p>
+<p><strong>Export 命令</strong></p>
+<figure class="highlight elm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">xcodebuild</span>  -exportArchive</span><br></pre></td></tr></table></figure>
+<p><strong>参数</strong></p>
+<figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">-<span class="ruby">archivePath   指定archive 文件的路径  -archivePath  out/xxx.xcarchive</span><br><span class="line"></span>-<span class="ruby">exportOptionsPlist   指定export 配置  是一个plist 文件  -exportOptionsPlist /xxxx/xxx.plist</span><br><span class="line"></span>不指定 exportOptionsPlist 的 （xcodebuild  -exportArchive）命令已被标记为 depread  (废弃)</span><br><span class="line">指定的plist 文件包含了 导出的一些配置,比如上图中是导出ad hoc类型还是AppStore类型等配置</span><br><span class="line">-<span class="ruby">exportPath  指定export输出目录</span><br><span class="line"></span><span class="comment"></span><br><span class="line">//下面的命令是可选的</span></span><br><span class="line">-<span class="ruby">exportSigningIdentity  配置export 签名文件</span><br><span class="line"></span>-<span class="ruby">exportProvisioningProfile  配置profile 文件  使用profile文件名字-exportProvisioningProfile <span class="string">'abcd_adhoc'</span></span></span><br></pre></td></tr></table></figure>
+<p><strong>export plist配置文件介绍</strong></p>
+<p>导出时需要通过<code>-exportOptionsPlist</code> 制定一个plist配置文件，改配置文件包含以下属性</p>
+<figure class="highlight oxygene"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">- <span class="function"><span class="keyword">method</span>:</span> (String) The <span class="function"><span class="keyword">method</span> <span class="title">of</span> <span class="title">distribution</span>, <span class="title">which</span> <span class="title">can</span> <span class="title">be</span> <span class="title">set</span> <span class="title">as</span> <span class="title">any</span> <span class="title">of</span> <span class="title">the</span> <span class="title">following</span>:</span></span><br><span class="line">	- app-store</span><br><span class="line">	- enterprise</span><br><span class="line">	- ad-hoc</span><br><span class="line">	- development</span><br><span class="line">- teamID: (String) The development program team identifier.</span><br><span class="line">- uploadSymbols: (Boolean) Option <span class="keyword">to</span> include symbols <span class="keyword">in</span> the generated ipa file.</span><br><span class="line">- uploadBitcode: (Boolean) Option <span class="keyword">to</span> include Bitcode.</span><br></pre></td></tr></table></figure>
+<p>这里导出到App Store使用如下配置</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="php"><span class="meta">&lt;?</span>xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span><span class="meta">?&gt;</span></span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">plist</span> <span class="attr">version</span>=<span class="string">"1.0"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dict</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>method<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">string</span>&gt;</span>app-store<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>uploadSymbols<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">true</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>uploadBitcode<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">true</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dict</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">plist</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><strong>注意 不需要使用 teamId<br>开始用 -exportOptionsPlist 导出的时候  报错，无法导出  最后删除 plist 里面的teamId 导出成功</strong></p>
+</blockquote>
+<p><strong>完整命令</strong></p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">xcodebuild -exportArchive -archivePath <span class="regexp">/Users/</span>name<span class="regexp">/Desktop/</span>xxx<span class="regexp">/Archive/</span>test.xcarchive</span><br><span class="line">-exportOptionsPlist <span class="regexp">/Users/</span>name<span class="regexp">/Desktop/</span>xxx/export.plist</span><br><span class="line">-exportPath <span class="regexp">/Users/</span>name<span class="regexp">/Desktop/</span>xxx<span class="regexp">/Export/</span>testExport</span><br></pre></td></tr></table></figure>
+<p><img src="http://7xiutw.com1.z0.glb.clouddn.com/AE709C91-5E08-4296-82DE-58338395016B.png" alt=""></p>
+<h1 id="上传到AppStore"><a href="#上传到AppStore" class="headerlink" title="上传到AppStore"></a>上传到AppStore</h1><p>其实到了目前这一步，已经节省了我们很多工作量了，我们只需要拿到导出的ipa文件用 <strong>Application Loader</strong>上传即可。但是本着极客的心态，我们必须尝试用脚本实现。</p>
+<p>上传到AppStore 我们无法通过xcodebuild实现，这里借助了一个非常好用的命令行工具<a href="https://github.com/nomad/shenzhen" target="_blank" rel="external"><strong>shenzhen</strong></a></p>
+<p>该工具提供了多种发布ipa包的方式，包括发布到AppStore，蒲公英，fir等等</p>
+<p><strong>发布到AppStore命令</strong></p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="selector-tag">ipa</span> <span class="selector-tag">distribute</span><span class="selector-pseudo">:itunesconnect</span></span><br></pre></td></tr></table></figure>
+<p><strong>参数</strong></p>
+<figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">-<span class="ruby">a itunesconnect 账号</span><br><span class="line"></span>-<span class="ruby">p itunesconnect 密码</span><br><span class="line"></span>-<span class="ruby">i itunesconnect 上对应的AppId</span><br><span class="line"></span>-<span class="ruby">f ipa文件的路径</span><br><span class="line"></span>-<span class="ruby">-upload 上传</span></span><br></pre></td></tr></table></figure>
+<p><strong>完整命令</strong></p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ipa <span class="attribute">distribute</span>:itunesconnect -a me<span class="variable">@email</span>.com -p myitunesconnectpassword -i appleid  -f xxxx/test.ipa   --upload</span><br></pre></td></tr></table></figure>
+<h1 id="Shell脚本"><a href="#Shell脚本" class="headerlink" title="Shell脚本"></a>Shell脚本</h1><p>上面把核心功能都实现了，接下来就是怎么组装成一个Shell脚本，并且方便批量化投入使用了。</p>
+<h2 id="全局变量"><a href="#全局变量" class="headerlink" title="全局变量"></a>全局变量</h2><figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#当前路径</span></span><br><span class="line"><span class="attr">CURRENT_PATH</span>=`pwd`</span><br><span class="line"></span><br><span class="line"><span class="comment">#当前路径的 workspace 绝对路径 如果没有workspace 为空</span></span><br><span class="line"><span class="attr">WORKSPACE_PATH</span>=`ls | grep <span class="string">'xcworkspace'</span>`</span><br><span class="line"><span class="attr">WORKSPACE_NAME</span>=</span><br><span class="line"><span class="attr">ACHIVE_PATH</span>=<span class="variable">$CURRENT_PATH</span><span class="string">"/Archive/"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#导出plist文件路径</span></span><br><span class="line"><span class="attr">EXPORT_PLIST</span>=<span class="variable">$CURRENT_PATH</span><span class="string">"/export.plist"</span></span><br><span class="line"><span class="comment">#导出ipa路径</span></span><br><span class="line"><span class="attr">EXPORT_OUTPUT</span>=<span class="variable">$CURRENT_PATH</span><span class="string">"/Export/"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#上传配置文件路径</span></span><br><span class="line"><span class="attr">UPLOAD_CONFIG_PLIST_PATH</span>=<span class="variable">$CURRENT_PATH</span><span class="string">"/upload.plist"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#读取命令行输入参数</span></span><br><span class="line"><span class="attr">SHOULD_UPLOAD</span>=</span><br><span class="line"><span class="attr">SHOULD_ARCHIVE</span>=</span><br><span class="line"><span class="attr">SHOULD_EXPORT</span>=</span><br><span class="line"><span class="attr">SHOULD_WAIT</span>=</span><br><span class="line"></span><br><span class="line"><span class="comment">#多个Scheme</span></span><br><span class="line"><span class="attr">BUILD_SCHEME</span>=(<span class="string">"Scheme1"</span> <span class="string">"Scheme2"</span> <span class="string">"Scheme3"</span>)</span><br></pre></td></tr></table></figure>
+<p>尤其是读取命令行输入的四个参数，可以用来分别控制本次命令，组合执行 archive,export,upload，三种命令。</p>
+<p>另外看到 下面的写法</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">WORKSPACE_PATH</span>=`ls | grep <span class="string">'xcworkspace'</span>`</span><br></pre></td></tr></table></figure>
+<p>两个<strong>`</strong>号用来执行一段shell命令，其执行结果保存到WORKSPACE_PATH中</p>
+<h2 id="获取输入参数"><a href="#获取输入参数" class="headerlink" title="获取输入参数"></a>获取输入参数</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> <span class="built_in">getopts</span> <span class="string">":uaew"</span> OPTION </span><br><span class="line"><span class="keyword">do</span> </span><br><span class="line">	<span class="keyword">case</span> <span class="variable">$OPTION</span> <span class="keyword">in</span> </span><br><span class="line">	    u ) SHOULD_UPLOAD=<span class="string">"1"</span>;;</span><br><span class="line">		a ) SHOULD_ARCHIVE=<span class="string">"1"</span>;;</span><br><span class="line">		e ) SHOULD_EXPORT=<span class="string">"1"</span>;;</span><br><span class="line">		w ) SHOULD_WAIT=<span class="string">"1"</span>;;   </span><br><span class="line">	<span class="keyword">esac</span> </span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+<h2 id="upload-plist"><a href="#upload-plist" class="headerlink" title="upload.plist"></a>upload.plist</h2><p>由于上传的时候需要体统itunesconnect 账号密码，以及appid所以，这里我创建了一个上传的配置文件，以对应的scheme名字为key 保存itunesconnect 账号密码，以及appid</p>
+<p><img src="http://7xiutw.com1.z0.glb.clouddn.com/9D03BE90-88A7-4261-B6FB-54C94A634DC9.png" alt=""></p>
+<p>然后通过<code>/usr/libexec/PlistBuddy</code>来读取plist文件的内容</p>
+<h2 id="主循环"><a href="#主循环" class="headerlink" title="主循环"></a>主循环</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> scheme <span class="keyword">in</span> <span class="variable">$&#123;BUILD_SCHEME[*]&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">	ACHIVE_OUTPUT=<span class="variable">$ACHIVE_PATH</span><span class="string">""</span><span class="variable">$scheme</span><span class="string">".xcarchive"</span></span><br><span class="line">	OUTPUT=<span class="variable">$EXPORT_OUTPUT</span><span class="string">""</span><span class="variable">$scheme</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> [  <span class="variable">$SHOULD_ARCHIVE</span> ]; <span class="keyword">then</span></span><br><span class="line">		hilightlog <span class="string">"**********CLEAN scheme <span class="variable">$scheme</span>*****************"</span></span><br><span class="line">		CLEAN_CMD=<span class="string">"xcodebuild clean -workspace <span class="variable">$WORKSPACE_PATH</span>"</span></span><br><span class="line">		CLEAN_CMD=<span class="variable">$CLEAN_CMD</span><span class="string">" -scheme <span class="variable">$scheme</span>"</span></span><br><span class="line">		CLEAN_CMD=<span class="variable">$CLEAN_CMD</span><span class="string">" -configuration release"</span></span><br><span class="line">		<span class="built_in">eval</span> <span class="variable">$CLEAN_CMD</span></span><br><span class="line"></span><br><span class="line">		XCODE_BUILD_CMD=<span class="string">"xcodebuild archive"</span></span><br><span class="line">		XCODE_BUILD_CMD=<span class="variable">$XCODE_BUILD_CMD</span><span class="string">" -workspace <span class="variable">$WORKSPACE_PATH</span>"</span></span><br><span class="line">		XCODE_BUILD_CMD=<span class="variable">$XCODE_BUILD_CMD</span><span class="string">" -scheme <span class="variable">$scheme</span>"</span></span><br><span class="line">		XCODE_BUILD_CMD=<span class="variable">$XCODE_BUILD_CMD</span><span class="string">" -archivePath <span class="variable">$ACHIVE_OUTPUT</span>"</span></span><br><span class="line"></span><br><span class="line">		hilightlog <span class="string">"**********ARCHIVE <span class="variable">$WORKSPACE_NAME</span>  scheme <span class="variable">$scheme</span>*****************"</span></span><br><span class="line">		<span class="built_in">eval</span> <span class="variable">$XCODE_BUILD_CMD</span></span><br><span class="line">		BUILD_RESULT=$?</span><br><span class="line">		<span class="keyword">if</span> [ <span class="variable">$BUILD_RESULT</span> != 0 ];  <span class="keyword">then</span></span><br><span class="line">			errlog <span class="string">"ERROR : 编译失败"</span></span><br><span class="line">			<span class="built_in">exit</span></span><br><span class="line">		<span class="keyword">fi</span></span><br><span class="line">	<span class="keyword">fi</span></span><br><span class="line">	</span><br><span class="line"></span><br><span class="line">	<span class="comment">#export</span></span><br><span class="line">	<span class="keyword">if</span> [  <span class="variable">$SHOULD_EXPORT</span> ]; <span class="keyword">then</span></span><br><span class="line">		XCODE_BUILD_CMD=<span class="string">"xcodebuild -exportArchive"</span></span><br><span class="line">		XCODE_BUILD_CMD=<span class="variable">$XCODE_BUILD_CMD</span><span class="string">" -archivePath <span class="variable">$ACHIVE_OUTPUT</span>"</span></span><br><span class="line">		XCODE_BUILD_CMD=<span class="variable">$XCODE_BUILD_CMD</span><span class="string">" -exportOptionsPlist <span class="variable">$EXPORT_PLIST</span>"</span></span><br><span class="line">		XCODE_BUILD_CMD=<span class="variable">$XCODE_BUILD_CMD</span><span class="string">" -exportPath <span class="variable">$OUTPUT</span>"</span></span><br><span class="line"></span><br><span class="line">		hilightlog <span class="string">"**********EXPORT*****************"</span></span><br><span class="line">		<span class="built_in">eval</span> <span class="variable">$XCODE_BUILD_CMD</span></span><br><span class="line">		BUILD_RESULT=$?</span><br><span class="line">		<span class="keyword">if</span> [ <span class="variable">$BUILD_RESULT</span> != 0 ];  <span class="keyword">then</span></span><br><span class="line">			errlog <span class="string">"ERROR : EXPORT失败"</span></span><br><span class="line">			<span class="built_in">exit</span></span><br><span class="line">		<span class="keyword">fi</span></span><br><span class="line">	<span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">#####UPLOAD####</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> [  <span class="variable">$SHOULD_UPLOAD</span> ]; <span class="keyword">then</span></span><br><span class="line">		hilightlog <span class="string">"**********UPLOAD <span class="variable">$scheme</span>.ipa*****************"</span></span><br><span class="line">		IPA_PATH=<span class="variable">$OUTPUT</span><span class="string">"/"</span><span class="variable">$scheme</span><span class="string">".ipa"</span></span><br><span class="line">		<span class="comment">#/usr/libexec/PlistBuddy 后面的参数本来是用单引号 'Print $scheme:acount'</span></span><br><span class="line">		<span class="comment">#但是后来发现  在''里面引用变量的话不解包，所以改成了"" 双引号</span></span><br><span class="line">		UPLOAD_ACCOUNT=`/usr/libexec/PlistBuddy -c <span class="string">"Print <span class="variable">$scheme</span>:acount"</span> <span class="variable">$UPLOAD_CONFIG_PLIST_PATH</span>`</span><br><span class="line">		UPLOAD_PASSWOLD=`/usr/libexec/PlistBuddy -c <span class="string">"Print <span class="variable">$scheme</span>:password"</span> <span class="variable">$UPLOAD_CONFIG_PLIST_PATH</span>`</span><br><span class="line">		UPLOAD_APPID=`/usr/libexec/PlistBuddy -c <span class="string">"Print <span class="variable">$scheme</span>:appid"</span> <span class="variable">$UPLOAD_CONFIG_PLIST_PATH</span>`</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">		UPLOAD_CMD=<span class="string">"ipa distribute:itunesconnect"</span></span><br><span class="line">		UPLOAD_CMD=<span class="variable">$UPLOAD_CMD</span><span class="string">" -a <span class="variable">$UPLOAD_ACCOUNT</span>"</span></span><br><span class="line">		UPLOAD_CMD=<span class="variable">$UPLOAD_CMD</span><span class="string">" -p <span class="variable">$UPLOAD_PASSWOLD</span>"</span></span><br><span class="line">		UPLOAD_CMD=<span class="variable">$UPLOAD_CMD</span><span class="string">" -i <span class="variable">$UPLOAD_APPID</span>"</span></span><br><span class="line">		UPLOAD_CMD=<span class="variable">$UPLOAD_CMD</span><span class="string">" -f <span class="variable">$IPA_PATH</span>"</span></span><br><span class="line">		UPLOAD_CMD=<span class="variable">$UPLOAD_CMD</span><span class="string">" --upload --verbose"</span></span><br><span class="line">		<span class="built_in">eval</span> <span class="variable">$UPLOAD_CMD</span></span><br><span class="line">		UPLOAD_RESULT=$?</span><br><span class="line">		<span class="keyword">if</span> [ <span class="variable">$UPLOAD_RESULT</span> != 0 ];  <span class="keyword">then</span></span><br><span class="line">			errlog <span class="string">"ERROR : UPLOAD失败"</span></span><br><span class="line">			<span class="built_in">exit</span></span><br><span class="line">		<span class="keyword">fi</span></span><br><span class="line">	<span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> [ <span class="variable">$SHOULD_WAIT</span> ]; <span class="keyword">then</span></span><br><span class="line">		<span class="built_in">echo</span> <span class="string">"Press Enter to continue..."</span>;</span><br><span class="line">		<span class="built_in">read</span></span><br><span class="line">	<span class="keyword">fi</span></span><br><span class="line">	</span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+<p><strong>当两个’ ‘引号包裹起来的语句如果包含$xx 引用变量，这个变量是不会被解开的</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">PARA=<span class="string">"test"</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">'$PARA hello'</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"<span class="variable">$PARA</span> hello"</span></span><br><span class="line"></span><br><span class="line">输出</span><br><span class="line"><span class="variable">$PARA</span> hello</span><br><span class="line"><span class="built_in">test</span> hello</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/07/12/IOS之HTTPS学习笔记/" rel="next" title="IOS之HTTPS学习笔记">
+                <i class="fa fa-chevron-left"></i> IOS之HTTPS学习笔记
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/07/15/iOS脚本系列之Archive-Export-Upload到AppStore/"
+           data-title="iOS脚本系列之Archive Export Upload到AppStore" data-url="http://yoursite.com/2016/07/15/iOS脚本系列之Archive-Export-Upload到AppStore/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/portrait.png"
+               alt="不曾拥有" />
+          <p class="site-author-name" itemprop="name">不曾拥有</p>
+          <p class="site-description motion-element" itemprop="description">不曾拥有的技术博客</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">7</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Archive"><span class="nav-number">2.</span> <span class="nav-text">Archive</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Export"><span class="nav-number">3.</span> <span class="nav-text">Export</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#上传到AppStore"><span class="nav-number">4.</span> <span class="nav-text">上传到AppStore</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Shell脚本"><span class="nav-number">5.</span> <span class="nav-text">Shell脚本</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#全局变量"><span class="nav-number">5.1.</span> <span class="nav-text">全局变量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#获取输入参数"><span class="nav-number">5.2.</span> <span class="nav-text">获取输入参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#upload-plist"><span class="nav-number">5.3.</span> <span class="nav-text">upload.plist</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#主循环"><span class="nav-number">5.4.</span> <span class="nav-text">主循环</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">不曾拥有</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">访问用户<span class="busuanzi-value" id="busuanzi_value_site_uv"></span></span>
+  
+
+  
+    <span class="site-pv">博客访问量<span class="busuanzi-value" id="busuanzi_value_site_pv"></span></span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"bucengyongyou"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+  
+
+  
+  
+  <!-- custom analytics part create by xiamo -->
+<script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+<script>AV.initialize("kNKleu3PkswnB7pW5oJ6hGeP-gzGzoHsz", "r6E7v9CeOLfby6w8lYi27W5c");</script>
+<script>
+function showTime(Counter) {
+	var query = new AV.Query(Counter);
+	$(".leancloud_visitors").each(function() {
+		var url = $(this).attr("id").trim();
+		query.equalTo("url", url);
+		query.find({
+			success: function(results) {
+				if (results.length == 0) {
+					var content = '0 ' + $(document.getElementById(url)).text();
+					$(document.getElementById(url)).text(content);
+					return;
+				}
+				for (var i = 0; i < results.length; i++) {
+					var object = results[i];
+					var content = object.get('time') + ' ' + $(document.getElementById(url)).text();
+					$(document.getElementById(url)).text(content);
+				}
+			},
+			error: function(object, error) {
+				console.log("Error: " + error.code + " " + error.message);
+			}
+		});
+
+	});
+}
+
+function addCount(Counter) {
+	var Counter = AV.Object.extend("Counter");
+	url = $(".leancloud_visitors").attr('id').trim();
+	title = $(".leancloud_visitors").attr('data-flag-title').trim();
+	var query = new AV.Query(Counter);
+	query.equalTo("url", url);
+	query.find({
+		success: function(results) {
+			if (results.length > 0) {
+				var counter = results[0];
+				counter.fetchWhenSave(true);
+				counter.increment("time");
+				counter.save(null, {
+					success: function(counter) {
+						var content =  counter.get('time') + ' ' + $(document.getElementById(url)).text();
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(counter, error) {
+						$(document.getElementById(url)).text(error.message);
+						console.log('Failed to save Visitor num, with error message: ' + error.message);
+					}
+				});
+			} else {
+				var newcounter = new Counter();
+				newcounter.set("title", title);
+				newcounter.set("url", url);
+				newcounter.set("time", 1);
+				newcounter.save(null, {
+					success: function(newcounter) {
+					    console.log("newcounter.get('time')="+newcounter.get('time'));
+						var content = newcounter.get('time') + ' ' + $(document.getElementById(url)).text();
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(newcounter, error) {
+						console.log('Failed to create');
+					}
+				});
+			}
+		},
+		error: function(error) {
+			console.log('Error:' + error.code + " " + error.message);
+		}
+	});
+}
+$(function() {
+	var Counter = AV.Object.extend("Counter");
+	if ($('.leancloud_visitors').length == 1) {
+		addCount(Counter);
+	} else if ($('.post-title-link').length > 1) {
+		showTime(Counter);
+	}
+}); 
+</script>
+  
+</body>
+</html>
