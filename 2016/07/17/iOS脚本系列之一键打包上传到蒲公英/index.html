@@ -1,0 +1,732 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="日常开发中，我们经常会遇到为其他人员安装测试包的情况，早期的时候，都是用的最笨的方法，把每个人的手机拿过来，一个一个的为他们安装，这个过程确实即浪费时间，又浪费精力。
+后来出现了一些持续继承的工具，比如jenkins,以及一些测试包分发的平台 蒲公英，fir.im,能够通过网页安装ipa包。
+通过jenkins我们能够配置，一键打包，上传到上面的分发平台，并且发邮件通知人员安装。其实jenkins">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS脚本系列之一键打包上传到蒲公英">
+<meta property="og:url" content="http://yoursite.com/2016/07/17/iOS脚本系列之一键打包上传到蒲公英/index.html">
+<meta property="og:site_name" content="不曾拥有的技术博客">
+<meta property="og:description" content="日常开发中，我们经常会遇到为其他人员安装测试包的情况，早期的时候，都是用的最笨的方法，把每个人的手机拿过来，一个一个的为他们安装，这个过程确实即浪费时间，又浪费精力。
+后来出现了一些持续继承的工具，比如jenkins,以及一些测试包分发的平台 蒲公英，fir.im,能够通过网页安装ipa包。
+通过jenkins我们能够配置，一键打包，上传到上面的分发平台，并且发邮件通知人员安装。其实jenkins">
+<meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/D0D652F5-A233-4439-8F22-64A54EB69D8E.png">
+<meta property="og:updated_time" content="2016-07-17T08:30:31.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="iOS脚本系列之一键打包上传到蒲公英">
+<meta name="twitter:description" content="日常开发中，我们经常会遇到为其他人员安装测试包的情况，早期的时候，都是用的最笨的方法，把每个人的手机拿过来，一个一个的为他们安装，这个过程确实即浪费时间，又浪费精力。
+后来出现了一些持续继承的工具，比如jenkins,以及一些测试包分发的平台 蒲公英，fir.im,能够通过网页安装ipa包。
+通过jenkins我们能够配置，一键打包，上传到上面的分发平台，并且发邮件通知人员安装。其实jenkins">
+<meta name="twitter:image" content="http://7xiutw.com1.z0.glb.clouddn.com/D0D652F5-A233-4439-8F22-64A54EB69D8E.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"hide"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> iOS脚本系列之一键打包上传到蒲公英 | 不曾拥有的技术博客 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta custom-logo">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">不曾拥有的技术博客</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                iOS脚本系列之一键打包上传到蒲公英
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-07-17T15:32:28+08:00" content="2016-07-17">
+              2016-07-17
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/07/17/iOS脚本系列之一键打包上传到蒲公英/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/07/17/iOS脚本系列之一键打包上传到蒲公英/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             &nbsp; | &nbsp;
+              <span id="/2016/07/17/iOS脚本系列之一键打包上传到蒲公英/"class="leancloud_visitors" data-flag-title="iOS脚本系列之一键打包上传到蒲公英">
+                       &nbsp;阅读次数
+                      </span>
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>日常开发中，我们经常会遇到为其他人员安装测试包的情况，早期的时候，都是用的最笨的方法，把每个人的手机拿过来，一个一个的为他们安装，这个过程确实即浪费时间，又浪费精力。</p>
+<p>后来出现了一些持续继承的工具，比如<a href="https://jenkins.io/index.html" target="_blank" rel="external">jenkins</a>,以及一些测试包分发的平台 <strong>蒲公英</strong>，<strong>fir.im</strong>,能够通过网页安装ipa包。</p>
+<p>通过jenkins我们能够配置，一键打包，上传到上面的分发平台，并且发邮件通知人员安装。其实jenkins不过是给我们提供了一个可视化的配置界面，底层还是组合调用各种脚本命令行来完成工作的。</p>
+<p>今天这篇文章我们就来实现一些，通过一个脚本来完成一键打包上传蒲公英，并发送邮件提醒测试人员的整套流程</p>
+<a id="more"></a>
+<h1 id="Build"><a href="#Build" class="headerlink" title="Build"></a>Build</h1><p>打包过程使用<code>xcodebuild</code>命令，支持</p>
+<ul>
+<li>debug,release环境</li>
+<li>workspace或普通工程打包</li>
+</ul>
+<p><strong>Build命令</strong></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xcodebuild</span><br></pre></td></tr></table></figure>
+<p><strong>参数</strong></p>
+<figure class="highlight haml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//build project</span></span><br><span class="line">-<span class="ruby">project  name.xcodeproject</span><br><span class="line"></span>-<span class="ruby">target Name</span><br><span class="line"></span>-<span class="ruby">all targets</span><br><span class="line"></span><span class="comment"></span><br><span class="line">//build workspace</span></span><br><span class="line">-<span class="ruby">workspace  xxx.xcworkspace</span><br><span class="line"></span>-<span class="ruby">scheme myScheme</span><br><span class="line"></span><span class="comment"></span><br><span class="line">//configuration</span></span><br><span class="line">-<span class="ruby">configuration Debug/Release/或自定义的configuration</span><br><span class="line"></span><span class="comment"></span><br><span class="line">//输出目录 build workspace 默认的build 输出目录在系统develop 目录里面，可以通过设置 CONFIGURATION_BUILD_DIR 来重定向输出目录，注意这个目录一定要用绝对路径，不然一直报链接错误</span></span><br><span class="line">CONFIGURATION_BUILD_DIR=/xxx/build</span><br><span class="line"><span class="comment"></span><br><span class="line">//build之前clean</span></span><br><span class="line">clean build</span><br></pre></td></tr></table></figure>
+<p><strong>完整用例</strong></p>
+<p>build Project</p>
+<blockquote>
+<p>build 工程默认输出的build 目录是在当前文件夹的build 里面</p>
+</blockquote>
+<figure class="highlight fortran"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xcodebuild -project <span class="keyword">name</span>.xcodeproj -<span class="keyword">target</span> target1 -configuration Debug clean build</span><br></pre></td></tr></table></figure>
+<p>build Workspace</p>
+<blockquote>
+<p>需要指定CONFIGURATION_BUILD_DIR</p>
+</blockquote>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xcodebuild -workspace XXX.xcworkspace -scheme <span class="string">"scheme1"</span>  -configuration Debug clean build CONFIGURATION_BUILD_DIR=<span class="regexp">/Users/</span>name<span class="regexp">/Desktop/</span>宿舍购<span class="regexp">/project/</span>tmp</span><br></pre></td></tr></table></figure>
+<h1 id="打包ipa"><a href="#打包ipa" class="headerlink" title="打包ipa"></a>打包ipa</h1><p>上一步将项目build成功得到了app文件，接下来需要将app文件打包成ipa。<br>通常ipa文件我们可以将其后缀名改为zip通过zip的方式解压，解压之后得到一个Payload文件夹，里面就是我们的app文件。</p>
+<p><img src="http://7xiutw.com1.z0.glb.clouddn.com/D0D652F5-A233-4439-8F22-64A54EB69D8E.png" alt=""></p>
+<p>打包ipa的方式有多种，我们这里使用最简单的压缩命令。</p>
+<p>假设我们得到的app文件为test.app,通过如下命令打包为ipa</p>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">mkdir</span> -p ipa/Payload</span><br><span class="line">cp -r <span class="keyword">test</span>.<span class="keyword">app</span> ipa/Payload/ </span><br><span class="line"><span class="keyword">cd</span> ipa</span><br><span class="line"><span class="keyword">zip</span> -r <span class="keyword">test</span>.ipa *</span><br></pre></td></tr></table></figure>
+<h1 id="上传蒲公英"><a href="#上传蒲公英" class="headerlink" title="上传蒲公英"></a>上传蒲公英</h1><p>上传蒲公英的过程也是非常简单，蒲公英为我们提供了现成的接口，我们只需要通过<code>curl</code>命令上传即可</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -F <span class="string">"file=@<span class="subst">$IPA_NAME</span>"</span> -F <span class="string">"uKey=<span class="subst">$PUGONGYING_UKEY</span>"</span> -F <span class="string">"_api_key=<span class="subst">$PUTONGYONG_API_KEY</span>"</span> http:<span class="comment">//www.pgyer.com/apiv1/app/upload</span></span><br></pre></td></tr></table></figure>
+<p>上传成功后，蒲公英会解析包的基本信息，比如版本号，名字，包的下载地址（扫码），直接安装地址等等以json的形式返回。我们需要将这些信息解析出来。后面发邮件的时候会做为邮件内容</p>
+<p>所以我们的命令变成了如下</p>
+<figure class="highlight nsis"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">UPLOAD_CMD='curl -F <span class="string">"file=@<span class="variable">$IPA_NAME</span>"</span> -F <span class="string">"uKey=<span class="variable">$PUGONGYING_UKEY</span>"</span> -F <span class="string">"_api_key=<span class="variable">$PUTONGYONG_API_KEY</span>"</span> http://www.pgyer.com/apiv1/app/upload'</span><br><span class="line">UPLOAD_RESULT=$(eval <span class="variable">$UPLOAD_CMD</span>)</span><br></pre></td></tr></table></figure>
+<p>这样上传的结果就保存到了<code>UPLOAD_RESULT</code>变量中了</p>
+<p><strong>解析json获取属性</strong><br>由于本人对shell并不熟悉，这里解析json获取属性用了非常简单粗暴的方式，即通过字符串匹配，截取，得到某个key对应的属性，如果有高手，希望能告知，shell语言如何正确的解析json</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">appKey</span>=`echo <span class="variable">$UPLOAD_RESULT</span> | grep -o  <span class="string">'"appKey":"[0-9a-zA-Z]\&#123;4,\&#125;"'</span> | tr <span class="string">'\"'</span> <span class="string">' '</span> | sed <span class="string">'s/[ ]//g'</span> | sed <span class="string">'s/appKey://'</span>`</span><br><span class="line"></span><br><span class="line"><span class="attr">shortUrl</span>=`echo <span class="variable">$UPLOAD_RESULT</span> | grep -o  <span class="string">'"appShortcutUrl":"[0-9a-zA-Z]\&#123;4,\&#125;"'</span> | tr <span class="string">'\"'</span> <span class="string">' '</span> | sed <span class="string">'s/[ ]//g'</span> | sed <span class="string">'s/appShortcutUrl://'</span>`</span><br><span class="line"></span><br><span class="line"><span class="attr">installUrl</span>=<span class="string">"http://www.pgyer.com/"</span><span class="variable">$shortUrl</span></span><br><span class="line"><span class="attr">directIntallUrl</span>=<span class="string">"itms-services://?action=download-manifest&amp;url=https://ssl.pgyer.com/app/plist/"</span><span class="variable">$appKey</span></span><br><span class="line"></span><br><span class="line"><span class="attr">appVersion</span>=`echo <span class="variable">$UPLOAD_RESULT</span> | grep -o  <span class="string">'"appVersion":"[1-9][.0-9]\&#123;1,\&#125;"'</span> | tr <span class="string">'\"'</span> <span class="string">' '</span> | sed <span class="string">'s/[ ]//g'</span> | sed <span class="string">'s/appVersion://'</span>`</span><br><span class="line"></span><br><span class="line"><span class="attr">appBuildVersion</span>=`echo <span class="variable">$UPLOAD_RESULT</span> | grep -o  <span class="string">'"appBuildVersion":"[0-9a-zA-Z]\&#123;1,\&#125;"'</span> | tr <span class="string">'\"'</span> <span class="string">' '</span> | sed <span class="string">'s/[ ]//g'</span> | sed <span class="string">'s/appBuildVersion://'</span>`</span><br></pre></td></tr></table></figure>
+<p>由于后面发送邮件使用python脚本，与shell不在一个上下文环境，所以这里的变量需要导出才能在python里面获取到</p>
+<figure class="highlight arduino"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> appName</span><br><span class="line"><span class="keyword">export</span> appKey </span><br><span class="line"><span class="keyword">export</span> appVersion</span><br><span class="line"><span class="keyword">export</span> appBuildVersion</span><br><span class="line"><span class="keyword">export</span> appShortcutUrl</span><br></pre></td></tr></table></figure>
+<h1 id="python发送邮件"><a href="#python发送邮件" class="headerlink" title="python发送邮件"></a>python发送邮件</h1><p>首先在shell命令行调用python脚本</p>
+<figure class="highlight mel"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pythonPath=$CURRENT_PATH<span class="string">"/sendMail.py"</span></span><br><span class="line"><span class="keyword">python</span> $pythonPath</span><br></pre></td></tr></table></figure>
+<p><strong>python脚本</strong></p>
+<figure class="highlight xl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"># coding=utf-<span class="number">8</span></span><br><span class="line"><span class="keyword">import</span> <span class="built_in">time</span></span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">import</span> mimetypes</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> smtplib</span><br><span class="line">from email.MIMEText <span class="keyword">import</span> MIMEText</span><br><span class="line">from email.MIMEMultipart <span class="keyword">import</span> MIMEMultipart</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># 运行时环境变量字典 用于获取前面导出的变量</span><br><span class="line">environsDict = os.environ</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">mail_receiver = [<span class="string">'xxxxxx.com'</span>,<span class="string">'xxxxxx.com'</span>]</span><br><span class="line"></span><br><span class="line">#根据不同邮箱配置 host，user，和pwd</span><br><span class="line">mail_host = <span class="string">'smtp.exmail.qq.com'</span></span><br><span class="line">mail_user = <span class="string">'xxxxx'</span></span><br><span class="line">mail_pwd = <span class="string">'xxxx'</span></span><br><span class="line">mail_to = <span class="string">','</span>.join(mail_receiver)</span><br><span class="line"></span><br><span class="line">msg = MIMEMultipart()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">appName = environsDict[<span class="string">'appName'</span>]</span><br><span class="line">appKey = environsDict[<span class="string">'appKey'</span>]</span><br><span class="line">appVersion = environsDict[<span class="string">'appVersion'</span>]</span><br><span class="line">appBuildVersion = environsDict[<span class="string">'appBuildVersion'</span>]</span><br><span class="line">appShortcutUrl = environsDict[<span class="string">'appShortcutUrl'</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">timeStr=<span class="built_in">time</span>.strftime(<span class="string">'%Y-%m-%d %H:%M:%S'</span>,<span class="built_in">time</span>.localtime(<span class="built_in">time</span>.<span class="built_in">time</span>()))</span><br><span class="line">environsString = <span class="string">'&lt;h3&gt;本次打包相关信息&lt;/h3&gt;&lt;p&gt;'</span></span><br><span class="line">#environsString += <span class="string">'&lt;p&gt;ipa 包下载地址 : '</span> + ipa_file_tomcat_http_url + <span class="string">'&lt;p&gt;'</span></span><br><span class="line">environsString += <span class="string">'&lt;p&gt;应用名称 : '</span> +  str(appName) + <span class="string">' &lt;p&gt;'</span></span><br><span class="line">environsString += <span class="string">'&lt;p&gt;打包时间 : '</span> +  timeStr + <span class="string">' &lt;p&gt;'</span></span><br><span class="line">environsString += <span class="string">'&lt;p&gt;版本号 : '</span> +  str(appVersion) + <span class="string">' &lt;p&gt;'</span></span><br><span class="line">environsString += <span class="string">'&lt;p&gt;Build号 : '</span> +  str(appBuildVersion) + <span class="string">' &lt;p&gt;'</span></span><br><span class="line">environsString += <span class="string">'&lt;p&gt;你可从蒲公英网站在线安装 : '</span> + <span class="string">'http://www.pgyer.com/'</span> + str(appShortcutUrl) + <span class="string">'&lt;p&gt;'</span></span><br><span class="line">environsString += <span class="string">'&lt;li&gt;&lt;a href="itms-services://?action=download-manifest&amp;url=https://ssl.pgyer.com/app/plist/'</span> + str(appKey) + <span class="string">'"&gt;点我直接安装&lt;/a&gt;&lt;/li&gt;'</span></span><br><span class="line">message = environsString</span><br><span class="line">body = MIMEText(message, _subtype=<span class="string">'html'</span>, _charset=<span class="string">'utf-8'</span>)</span><br><span class="line">msg.attach(body)</span><br><span class="line">msg[<span class="string">'To'</span>] = mail_to</span><br><span class="line">msg[<span class="string">'from'</span>] = mail_user</span><br><span class="line">msg[<span class="string">'subject'</span>] = <span class="string">'最新打包文件'</span> + timeStr</span><br><span class="line"></span><br><span class="line">try:</span><br><span class="line">    s = smtplib.SMTP()</span><br><span class="line">    s.connect(mail_host)</span><br><span class="line">    s.login(mail_user, mail_pwd)</span><br><span class="line">    </span><br><span class="line">    s.sendmail(mail_user, mail_receiver, msg.as_string())</span><br><span class="line">    s.close()</span><br><span class="line">    </span><br><span class="line">    print <span class="string">'send email success'</span></span><br><span class="line">    print <span class="string">'mail send '</span>,mail_receiver</span><br><span class="line">except Exception, e:</span><br><span class="line">    print e</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/07/15/iOS脚本系列之Archive-Export-Upload到AppStore/" rel="next" title="iOS脚本系列之Archive Export Upload到AppStore">
+                <i class="fa fa-chevron-left"></i> iOS脚本系列之Archive Export Upload到AppStore
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/07/17/iOS脚本系列之一键打包上传到蒲公英/"
+           data-title="iOS脚本系列之一键打包上传到蒲公英" data-url="http://yoursite.com/2016/07/17/iOS脚本系列之一键打包上传到蒲公英/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/portrait.png"
+               alt="不曾拥有" />
+          <p class="site-author-name" itemprop="name">不曾拥有</p>
+          <p class="site-description motion-element" itemprop="description">不曾拥有的技术博客</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">8</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Build"><span class="nav-number">1.</span> <span class="nav-text">Build</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#打包ipa"><span class="nav-number">2.</span> <span class="nav-text">打包ipa</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#上传蒲公英"><span class="nav-number">3.</span> <span class="nav-text">上传蒲公英</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#python发送邮件"><span class="nav-number">4.</span> <span class="nav-text">python发送邮件</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">不曾拥有</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">访问用户<span class="busuanzi-value" id="busuanzi_value_site_uv"></span></span>
+  
+
+  
+    <span class="site-pv">博客访问量<span class="busuanzi-value" id="busuanzi_value_site_pv"></span></span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"bucengyongyou"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+  
+
+  
+  
+  <!-- custom analytics part create by xiamo -->
+<script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+<script>AV.initialize("kNKleu3PkswnB7pW5oJ6hGeP-gzGzoHsz", "r6E7v9CeOLfby6w8lYi27W5c");</script>
+<script>
+function showTime(Counter) {
+	var query = new AV.Query(Counter);
+	$(".leancloud_visitors").each(function() {
+		var url = $(this).attr("id").trim();
+		query.equalTo("url", url);
+		query.find({
+			success: function(results) {
+				if (results.length == 0) {
+					var content = '0 ' + $(document.getElementById(url)).text();
+					$(document.getElementById(url)).text(content);
+					return;
+				}
+				for (var i = 0; i < results.length; i++) {
+					var object = results[i];
+					var content = object.get('time') + ' ' + $(document.getElementById(url)).text();
+					$(document.getElementById(url)).text(content);
+				}
+			},
+			error: function(object, error) {
+				console.log("Error: " + error.code + " " + error.message);
+			}
+		});
+
+	});
+}
+
+function addCount(Counter) {
+	var Counter = AV.Object.extend("Counter");
+	url = $(".leancloud_visitors").attr('id').trim();
+	title = $(".leancloud_visitors").attr('data-flag-title').trim();
+	var query = new AV.Query(Counter);
+	query.equalTo("url", url);
+	query.find({
+		success: function(results) {
+			if (results.length > 0) {
+				var counter = results[0];
+				counter.fetchWhenSave(true);
+				counter.increment("time");
+				counter.save(null, {
+					success: function(counter) {
+						var content =  counter.get('time') + ' ' + $(document.getElementById(url)).text();
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(counter, error) {
+						$(document.getElementById(url)).text(error.message);
+						console.log('Failed to save Visitor num, with error message: ' + error.message);
+					}
+				});
+			} else {
+				var newcounter = new Counter();
+				newcounter.set("title", title);
+				newcounter.set("url", url);
+				newcounter.set("time", 1);
+				newcounter.save(null, {
+					success: function(newcounter) {
+					    console.log("newcounter.get('time')="+newcounter.get('time'));
+						var content = newcounter.get('time') + ' ' + $(document.getElementById(url)).text();
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(newcounter, error) {
+						console.log('Failed to create');
+					}
+				});
+			}
+		},
+		error: function(error) {
+			console.log('Error:' + error.code + " " + error.message);
+		}
+	});
+}
+$(function() {
+	var Counter = AV.Object.extend("Counter");
+	if ($('.leancloud_visitors').length == 1) {
+		addCount(Counter);
+	} else if ($('.post-title-link').length > 1) {
+		showTime(Counter);
+	}
+}); 
+</script>
+  
+</body>
+</html>
