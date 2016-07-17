@@ -91,7 +91,7 @@
 后来出现了一些持续继承的工具，比如jenkins,以及一些测试包分发的平台 蒲公英，fir.im,能够通过网页安装ipa包。
 通过jenkins我们能够配置，一键打包，上传到上面的分发平台，并且发邮件通知人员安装。其实jenkins">
 <meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/D0D652F5-A233-4439-8F22-64A54EB69D8E.png">
-<meta property="og:updated_time" content="2016-07-17T08:30:31.000Z">
+<meta property="og:updated_time" content="2016-07-17T08:33:14.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="iOS脚本系列之一键打包上传到蒲公英">
 <meta name="twitter:description" content="日常开发中，我们经常会遇到为其他人员安装测试包的情况，早期的时候，都是用的最笨的方法，把每个人的手机拿过来，一个一个的为他们安装，这个过程确实即浪费时间，又浪费精力。
@@ -302,7 +302,7 @@
         <p>日常开发中，我们经常会遇到为其他人员安装测试包的情况，早期的时候，都是用的最笨的方法，把每个人的手机拿过来，一个一个的为他们安装，这个过程确实即浪费时间，又浪费精力。</p>
 <p>后来出现了一些持续继承的工具，比如<a href="https://jenkins.io/index.html" target="_blank" rel="external">jenkins</a>,以及一些测试包分发的平台 <strong>蒲公英</strong>，<strong>fir.im</strong>,能够通过网页安装ipa包。</p>
 <p>通过jenkins我们能够配置，一键打包，上传到上面的分发平台，并且发邮件通知人员安装。其实jenkins不过是给我们提供了一个可视化的配置界面，底层还是组合调用各种脚本命令行来完成工作的。</p>
-<p>今天这篇文章我们就来实现一些，通过一个脚本来完成一键打包上传蒲公英，并发送邮件提醒测试人员的整套流程</p>
+<p>今天这篇文章我们就来实现通过一个脚本来完成一键打包上传蒲公英，并发送邮件提醒测试人员的整套流程</p>
 <a id="more"></a>
 <h1 id="Build"><a href="#Build" class="headerlink" title="Build"></a>Build</h1><p>打包过程使用<code>xcodebuild</code>命令，支持</p>
 <ul>
