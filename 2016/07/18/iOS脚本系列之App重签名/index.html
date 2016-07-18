@@ -1,0 +1,752 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="我们知道一个iOS项目发布的完整流程是
+
+Build-&amp;gt;签名-&amp;gt;打包ipa-&amp;gt;上传AppStore
+
+今天我们就来研究签名这个过程，并用脚本实现重签名。
+重签名一般用来分发应用，比如我们前面上传蒲公英的脚本，在打包ipa之前，用企业证书进行重新签名，这样上传到蒲公英的ipa包所有人都能安装，没有设备闲置
+另外一种用途就是破解别人的App,然后重新打包签名。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS脚本系列之App重签名">
+<meta property="og:url" content="http://yoursite.com/2016/07/18/iOS脚本系列之App重签名/index.html">
+<meta property="og:site_name" content="不曾拥有的技术博客">
+<meta property="og:description" content="我们知道一个iOS项目发布的完整流程是
+
+Build-&amp;gt;签名-&amp;gt;打包ipa-&amp;gt;上传AppStore
+
+今天我们就来研究签名这个过程，并用脚本实现重签名。
+重签名一般用来分发应用，比如我们前面上传蒲公英的脚本，在打包ipa之前，用企业证书进行重新签名，这样上传到蒲公英的ipa包所有人都能安装，没有设备闲置
+另外一种用途就是破解别人的App,然后重新打包签名。">
+<meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/07E39832-1C0A-444D-8610-9DE707E704B4.png">
+<meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/4770DB1D-215A-4AF4-9C2B-AC1DCBDB90FE.png">
+<meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/0DC1FDEA-DFEC-46EA-8E78-40ED7B15FB3B.png">
+<meta property="og:updated_time" content="2016-07-18T09:58:18.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="iOS脚本系列之App重签名">
+<meta name="twitter:description" content="我们知道一个iOS项目发布的完整流程是
+
+Build-&amp;gt;签名-&amp;gt;打包ipa-&amp;gt;上传AppStore
+
+今天我们就来研究签名这个过程，并用脚本实现重签名。
+重签名一般用来分发应用，比如我们前面上传蒲公英的脚本，在打包ipa之前，用企业证书进行重新签名，这样上传到蒲公英的ipa包所有人都能安装，没有设备闲置
+另外一种用途就是破解别人的App,然后重新打包签名。">
+<meta name="twitter:image" content="http://7xiutw.com1.z0.glb.clouddn.com/07E39832-1C0A-444D-8610-9DE707E704B4.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"hide"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> iOS脚本系列之App重签名 | 不曾拥有的技术博客 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta custom-logo">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">不曾拥有的技术博客</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                iOS脚本系列之App重签名
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-07-18T15:42:03+08:00" content="2016-07-18">
+              2016-07-18
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/07/18/iOS脚本系列之App重签名/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/07/18/iOS脚本系列之App重签名/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             &nbsp; | &nbsp;
+              <span id="/2016/07/18/iOS脚本系列之App重签名/"class="leancloud_visitors" data-flag-title="iOS脚本系列之App重签名">
+                       &nbsp;阅读次数
+                      </span>
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>我们知道一个iOS项目发布的完整流程是</p>
+<blockquote>
+<p>Build-&gt;签名-&gt;打包ipa-&gt;上传AppStore</p>
+</blockquote>
+<p>今天我们就来研究<strong>签名</strong>这个过程，并用脚本实现重签名。</p>
+<p>重签名一般用来分发应用，比如我们前面上传蒲公英的脚本，在打包ipa之前，用企业证书进行重新签名，这样上传到蒲公英的ipa包所有人都能安装，没有设备闲置</p>
+<p>另外一种用途就是破解别人的App,然后重新打包签名。</p>
+<a id="more"></a>
+<h1 id="准备文件"><a href="#准备文件" class="headerlink" title="准备文件"></a>准备文件</h1><h2 id="App文件"><a href="#App文件" class="headerlink" title="App文件"></a>App文件</h2><p>一般来说，只要App文件就可以，不过一般我们可以从下面的途径获得</p>
+<ul>
+<li>用xcode编译产生的App,或者用命令<code>xcodebuild</code>的到的app文件</li>
+<li>从AppStore下载，解压安装包得到的App文件</li>
+<li>越狱渠道下载ipa，解包得到App文件</li>
+</ul>
+<h2 id="Bundlle-Id"><a href="#Bundlle-Id" class="headerlink" title="Bundlle Id"></a>Bundlle Id</h2><p>这个不用多说，没有bundleId 一切免谈</p>
+<h2 id="mobileprovision-配置文件"><a href="#mobileprovision-配置文件" class="headerlink" title="mobileprovision 配置文件"></a>mobileprovision 配置文件</h2><p>同样不必多说，必须与bundleId对应，如果是development,必须包含测试设备才能安装</p>
+<h2 id="证书"><a href="#证书" class="headerlink" title="证书"></a>证书</h2><p>开发证书提前安装到<strong>钥匙串</strong>，我们后面使用的时候直接使用其名称<br><img src="http://7xiutw.com1.z0.glb.clouddn.com/07E39832-1C0A-444D-8610-9DE707E704B4.png" alt=""></p>
+<h2 id="entitlements-plist"><a href="#entitlements-plist" class="headerlink" title="entitlements.plist"></a>entitlements.plist</h2><p>授权文件,签名时必须要指定的配置文件,如果不指定这个文件,那么签名后的文件无法安装,格式如下，不包括所有的属性</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="php"><span class="meta">&lt;?</span>xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span><span class="meta">?&gt;</span></span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">plist</span> <span class="attr">version</span>=<span class="string">"1.0"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dict</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">key</span>&gt;</span>application-identifier<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">string</span>&gt;</span>CWD8U968T3.com.xxxx.xxxx<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">key</span>&gt;</span>aps-environment<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">string</span>&gt;</span>development<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">key</span>&gt;</span>com.apple.developer.team-identifier<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">string</span>&gt;</span>CWD8U968T3<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">key</span>&gt;</span>get-task-allow<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">true</span>/&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">key</span>&gt;</span>keychain-access-groups<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">array</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">string</span>&gt;</span>CWD8U968T3.com.xxxx.xxxx<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">array</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dict</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">plist</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>不同环境的签名，entitlements.plist里面的属性也是略有不同，比如distribute签名<code>get-task-allow</code>属性为false,并且新增了属性<code>beta-reports-active 为true</code>，<code>aps-environment</code>属性为production</p>
+<p>那么这样一个文件,难道需要我们每次签名的时候，手动创建，并且修改里面这一堆属性吗，答案显然是否定的。其实整个entitlements信息已经包含在我们打包的mobileprovision 配置文件里面了。我们通过如下命令打印mobileprovision的信息到终端</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">security cms -D -<span class="selector-tag">i</span> xxxxx.mobileprovision</span><br></pre></td></tr></table></figure>
+<p>输出内容为plist文件格式，其中包含entitlements字段，对应的内容就是我们上面entitlements.plist需要的内容</p>
+<figure class="highlight dts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">.........</span><br><span class="line"><span class="params">&lt;/array&gt;</span></span><br><span class="line">	<span class="params">&lt;key&gt;</span>Entitlements<span class="params">&lt;/key&gt;</span>  <span class="comment">//这里</span></span><br><span class="line">	<span class="params">&lt;dict&gt;</span></span><br><span class="line">		<span class="params">&lt;key&gt;</span>keychain-access-groups<span class="params">&lt;/key&gt;</span></span><br><span class="line">		<span class="params">&lt;array&gt;</span></span><br><span class="line">			<span class="params">&lt;string&gt;</span>K9BNJJYDPH.*<span class="params">&lt;/string&gt;</span>		</span><br><span class="line">		<span class="params">&lt;/array&gt;</span></span><br><span class="line">		<span class="params">&lt;key&gt;</span>get-task-allow<span class="params">&lt;/key&gt;</span></span><br><span class="line">		<span class="params">&lt;true/&gt;</span></span><br><span class="line">		<span class="params">&lt;key&gt;</span>application-identifier<span class="params">&lt;/key&gt;</span></span><br><span class="line">		<span class="params">&lt;string&gt;</span>K9BNJJYDPH.com.fengkuang.yiyuanyungou<span class="params">&lt;/string&gt;</span></span><br><span class="line">		<span class="params">&lt;key&gt;</span>com.apple.developer.team-identifier<span class="params">&lt;/key&gt;</span></span><br><span class="line">		<span class="params">&lt;string&gt;</span>K9BNJJYDPH<span class="params">&lt;/string&gt;</span></span><br><span class="line">		<span class="params">&lt;key&gt;</span>aps-environment<span class="params">&lt;/key&gt;</span></span><br><span class="line">		<span class="params">&lt;string&gt;</span>development<span class="params">&lt;/string&gt;</span></span><br><span class="line">	<span class="params">&lt;/dict&gt;</span></span><br><span class="line">	<span class="params">&lt;key&gt;</span>ExpirationDate<span class="params">&lt;/key&gt;</span></span><br><span class="line">	<span class="params">&lt;date&gt;</span><span class="number">2017</span><span class="number">-07</span><span class="number">-17</span>T10:<span class="number">13</span>:<span class="number">39</span>Z<span class="params">&lt;/date&gt;</span></span><br><span class="line">	<span class="params">&lt;key&gt;</span>Name<span class="params">&lt;/key&gt;</span></span><br><span class="line">...........</span><br></pre></td></tr></table></figure>
+<p>所以我们只需要导出Entitlements字段的内容为一个plist文件即可，这就用到了<code>/usr/libexec/PlistBuddy</code>命令，如下组合命令在当前目录生成一个entitlements.plist文件</p>
+<figure class="highlight cos"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/libexec/PlistBuddy -<span class="keyword">x</span> -c <span class="string">"print :Entitlements "</span> /dev/stdin &lt;&lt;&lt; $(security cms -<span class="keyword">D</span> -i <span class="built_in">$APP</span>_PATH/embedded.mobileprovision) &gt; entitlements.plist</span><br></pre></td></tr></table></figure>
+<p>至此，签名所需要的内容都准备齐全，接下来进入签名流程</p>
+<h1 id="签名流程"><a href="#签名流程" class="headerlink" title="签名流程"></a>签名流程</h1><h2 id="替换embedded-mobileprovision"><a href="#替换embedded-mobileprovision" class="headerlink" title="替换embedded.mobileprovision"></a>替换embedded.mobileprovision</h2><p>App会将mobileprovision配置文件打包进bundle,并以embedded.mobileprovision命名，我们要做的第一步就是用我们自己的mobileprovision，替换App内部的embedded.mobileprovision</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">cp</span> <span class="variable">$PROVISION_PATH</span> <span class="variable">$APP_PATH</span>/embedded.mobileprovision</span><br></pre></td></tr></table></figure>
+<h2 id="生成entitlements-plist"><a href="#生成entitlements-plist" class="headerlink" title="生成entitlements.plist"></a>生成entitlements.plist</h2><p>用我们准备的mobileprovision配置文件来生成授权文件entitlements.plist,由于我们第一步已经将我们准备的mobileprovision文件拷贝进App文件夹内，并重命名为embedded.mobileprovision，所以这里直接对embedded.mobileprovision解析生成entitlements.plist</p>
+<figure class="highlight cos"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/libexec/PlistBuddy -<span class="keyword">x</span> -c <span class="string">"print :Entitlements "</span> /dev/stdin &lt;&lt;&lt; $(security cms -<span class="keyword">D</span> -i <span class="built_in">$APP</span>_PATH/embedded.mobileprovision) &gt; entitlements.plist</span><br></pre></td></tr></table></figure>
+<h2 id="修改BundleId"><a href="#修改BundleId" class="headerlink" title="修改BundleId"></a>修改BundleId</h2><p>App内部会包含一个info.plist文件，其实就是我们开发时的工程info配置文件。</p>
+<figure class="highlight cos"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/libexec/PlistBuddy -c '<span class="keyword">Set</span> :CFBundleIdentifier <span class="built_in">$NEW</span>_BUNDLE_ID' <span class="built_in">$APP</span>_PATH/info.plist</span><br></pre></td></tr></table></figure>
+<h2 id="重新签名"><a href="#重新签名" class="headerlink" title="重新签名"></a>重新签名</h2><p>签名命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">codesign <span class="_">-f</span> <span class="_">-s</span> <span class="string">"<span class="variable">$CER_NAME</span>"</span>  --entitlements entitlements.plist <span class="variable">$APP_PATH</span></span><br></pre></td></tr></table></figure>
+<p>如上即完成了整个签名流程，打开pp助手，将安装包丢进去，即可成功安装到手机。</p>
+<h1 id="过程分析"><a href="#过程分析" class="headerlink" title="过程分析"></a>过程分析</h1><h2 id="CodeSignature"><a href="#CodeSignature" class="headerlink" title="_CodeSignature"></a>_CodeSignature</h2><p>App签名过程中最重要的两个文件</p>
+<ul>
+<li>_CodeSignature 文件夹</li>
+<li>embedded.mobileprovision</li>
+</ul>
+<p>_CodeSignature文件夹在App顶层目录，打开_CodeSignature看到CodeResources文件，用文本编辑器打开，发现其是一个plist文件,保存了App目录里面所有文件的签名(包括embedded.mobileprovision，info.plist)</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="php"><span class="meta">&lt;?</span>xml version=<span class="string">"1.0"</span> encoding=<span class="string">"UTF-8"</span><span class="meta">?&gt;</span></span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">plist</span> <span class="attr">version</span>=<span class="string">"1.0"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dict</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">key</span>&gt;</span>files<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">dict</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">key</span>&gt;</span>AboutViewController~iphone.nib/objects-8.0+.nib<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">data</span>&gt;</span></span><br><span class="line">		GyPhI8KatWGryCh+GVl7V0DeFHc=</span><br><span class="line">		<span class="tag">&lt;/<span class="name">data</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">key</span>&gt;</span>AboutViewController~iphone.nib/runtime.nib<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">data</span>&gt;</span></span><br><span class="line">		uPnWXqdN4oWBfzvlzX1LTIeGHY4=</span><br><span class="line">		<span class="tag">&lt;/<span class="name">data</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">key</span>&gt;</span>AddressDetailViewController~iphone.nib/objects-8.0+.nib<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">data</span>&gt;</span></span><br><span class="line">		rVOD8E0uEHb9iMbcGGRj1E9TUWE=</span><br><span class="line">		<span class="tag">&lt;/<span class="name">data</span>&gt;</span></span><br><span class="line">		.........</span><br></pre></td></tr></table></figure>
+<p>当我们替换embedded.mobileprovision，修改info.plist之后，再调用codesign命令的时候 重新生成了_CodeSignature。</p>
+<p>iOS系统启动App的时候会检查_CodeSignature,以确保包的资源是没有被篡改过的。</p>
+<h2 id="entitlements-plist-1"><a href="#entitlements-plist-1" class="headerlink" title="entitlements.plist"></a>entitlements.plist</h2><p>这个授权文件其实已经包含在embedded.mobileprovision文件里面了，按照逻辑来讲，不用提供也可以，但是实际测试，还是必须要提供，不然签名后的App无法安装。</p>
+<p>观察xcode的build或者archive的log信息<br><img src="http://7xiutw.com1.z0.glb.clouddn.com/4770DB1D-215A-4AF4-9C2B-AC1DCBDB90FE.png" alt=""></p>
+<p><img src="http://7xiutw.com1.z0.glb.clouddn.com/0DC1FDEA-DFEC-46EA-8E78-40ED7B15FB3B.png" alt=""></p>
+<p>发现无论是build还是archive，xcode在签名的时候都指定了entitlements文件，我们可以复制这里的xxx.xcent路径然后，从finder中寻找打开，可以发现其内容与我们上面介绍的entitlements.plist内容是一致的。</p>
+<p>所以我这里的签名流程果断跟xcode一致，使用entitlements.plist</p>
+
+      
+    </div>
+    
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/07/17/iOS脚本系列之一键打包上传到蒲公英/" rel="next" title="iOS脚本系列之一键打包上传到蒲公英">
+                <i class="fa fa-chevron-left"></i> iOS脚本系列之一键打包上传到蒲公英
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/07/18/iOS脚本系列之App重签名/"
+           data-title="iOS脚本系列之App重签名" data-url="http://yoursite.com/2016/07/18/iOS脚本系列之App重签名/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/portrait.png"
+               alt="不曾拥有" />
+          <p class="site-author-name" itemprop="name">不曾拥有</p>
+          <p class="site-description motion-element" itemprop="description">不曾拥有的技术博客</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">9</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#准备文件"><span class="nav-number">1.</span> <span class="nav-text">准备文件</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#App文件"><span class="nav-number">1.1.</span> <span class="nav-text">App文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Bundlle-Id"><span class="nav-number">1.2.</span> <span class="nav-text">Bundlle Id</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mobileprovision-配置文件"><span class="nav-number">1.3.</span> <span class="nav-text">mobileprovision 配置文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#证书"><span class="nav-number">1.4.</span> <span class="nav-text">证书</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#entitlements-plist"><span class="nav-number">1.5.</span> <span class="nav-text">entitlements.plist</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#签名流程"><span class="nav-number">2.</span> <span class="nav-text">签名流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#替换embedded-mobileprovision"><span class="nav-number">2.1.</span> <span class="nav-text">替换embedded.mobileprovision</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#生成entitlements-plist"><span class="nav-number">2.2.</span> <span class="nav-text">生成entitlements.plist</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#修改BundleId"><span class="nav-number">2.3.</span> <span class="nav-text">修改BundleId</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#重新签名"><span class="nav-number">2.4.</span> <span class="nav-text">重新签名</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#过程分析"><span class="nav-number">3.</span> <span class="nav-text">过程分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#CodeSignature"><span class="nav-number">3.1.</span> <span class="nav-text">_CodeSignature</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#entitlements-plist-1"><span class="nav-number">3.2.</span> <span class="nav-text">entitlements.plist</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">不曾拥有</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">访问用户<span class="busuanzi-value" id="busuanzi_value_site_uv"></span></span>
+  
+
+  
+    <span class="site-pv">博客访问量<span class="busuanzi-value" id="busuanzi_value_site_pv"></span></span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"bucengyongyou"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+  
+
+  
+  
+  <!-- custom analytics part create by xiamo -->
+<script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+<script>AV.initialize("kNKleu3PkswnB7pW5oJ6hGeP-gzGzoHsz", "r6E7v9CeOLfby6w8lYi27W5c");</script>
+<script>
+function showTime(Counter) {
+	var query = new AV.Query(Counter);
+	$(".leancloud_visitors").each(function() {
+		var url = $(this).attr("id").trim();
+		query.equalTo("url", url);
+		query.find({
+			success: function(results) {
+				if (results.length == 0) {
+					var content = '0 ' + $(document.getElementById(url)).text();
+					$(document.getElementById(url)).text(content);
+					return;
+				}
+				for (var i = 0; i < results.length; i++) {
+					var object = results[i];
+					var content = object.get('time') + ' ' + $(document.getElementById(url)).text();
+					$(document.getElementById(url)).text(content);
+				}
+			},
+			error: function(object, error) {
+				console.log("Error: " + error.code + " " + error.message);
+			}
+		});
+
+	});
+}
+
+function addCount(Counter) {
+	var Counter = AV.Object.extend("Counter");
+	url = $(".leancloud_visitors").attr('id').trim();
+	title = $(".leancloud_visitors").attr('data-flag-title').trim();
+	var query = new AV.Query(Counter);
+	query.equalTo("url", url);
+	query.find({
+		success: function(results) {
+			if (results.length > 0) {
+				var counter = results[0];
+				counter.fetchWhenSave(true);
+				counter.increment("time");
+				counter.save(null, {
+					success: function(counter) {
+						var content =  counter.get('time') + ' ' + $(document.getElementById(url)).text();
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(counter, error) {
+						$(document.getElementById(url)).text(error.message);
+						console.log('Failed to save Visitor num, with error message: ' + error.message);
+					}
+				});
+			} else {
+				var newcounter = new Counter();
+				newcounter.set("title", title);
+				newcounter.set("url", url);
+				newcounter.set("time", 1);
+				newcounter.save(null, {
+					success: function(newcounter) {
+					    console.log("newcounter.get('time')="+newcounter.get('time'));
+						var content = newcounter.get('time') + ' ' + $(document.getElementById(url)).text();
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(newcounter, error) {
+						console.log('Failed to create');
+					}
+				});
+			}
+		},
+		error: function(error) {
+			console.log('Error:' + error.code + " " + error.message);
+		}
+	});
+}
+$(function() {
+	var Counter = AV.Object.extend("Counter");
+	if ($('.leancloud_visitors').length == 1) {
+		addCount(Counter);
+	} else if ($('.post-title-link').length > 1) {
+		showTime(Counter);
+	}
+}); 
+</script>
+  
+</body>
+</html>
