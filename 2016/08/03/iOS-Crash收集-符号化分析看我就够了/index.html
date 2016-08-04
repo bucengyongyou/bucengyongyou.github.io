@@ -1,0 +1,798 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="Crash是iOS平台的一个老生常谈的问题了，在应用开发阶段，我们可以通过设备连接电脑进行调试，当应用Crash的时候，大部分会断到问题代码那一行，我们可以很直观的看到问题的所在，但是当应用发布之后，出现Crash，我们就很难定位到问题所在了。
+不过好在我们能够通过一些手段来拿到Crash的信息，Crash信息里面最重要的就是程序最后调用堆栈了，我们可以通过调用堆栈，来定位程序出问题的的代码。
+本">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS Crash收集,符号化分析看我就够了">
+<meta property="og:url" content="http://yoursite.com/2016/08/03/iOS-Crash收集-符号化分析看我就够了/index.html">
+<meta property="og:site_name" content="不曾拥有的技术博客">
+<meta property="og:description" content="Crash是iOS平台的一个老生常谈的问题了，在应用开发阶段，我们可以通过设备连接电脑进行调试，当应用Crash的时候，大部分会断到问题代码那一行，我们可以很直观的看到问题的所在，但是当应用发布之后，出现Crash，我们就很难定位到问题所在了。
+不过好在我们能够通过一些手段来拿到Crash的信息，Crash信息里面最重要的就是程序最后调用堆栈了，我们可以通过调用堆栈，来定位程序出问题的的代码。
+本">
+<meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/E70AF4F3-8BA4-4C7E-9B72-7EFE769C35DF.png">
+<meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/9FBDFA0E-EDCF-434D-A41B-7BCC527EE9C7.png">
+<meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/0D86F3E9-E5CE-44DC-9BB0-022630C6EFCD.png">
+<meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/3EBAA6E7-636A-4E2C-B79C-F8E539FA2955.png">
+<meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/mach_o_segments.png">
+<meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/67C26D7C-713D-4AAF-92CC-9B6BCB34A01C.png">
+<meta property="og:updated_time" content="2016-08-04T08:17:07.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="iOS Crash收集,符号化分析看我就够了">
+<meta name="twitter:description" content="Crash是iOS平台的一个老生常谈的问题了，在应用开发阶段，我们可以通过设备连接电脑进行调试，当应用Crash的时候，大部分会断到问题代码那一行，我们可以很直观的看到问题的所在，但是当应用发布之后，出现Crash，我们就很难定位到问题所在了。
+不过好在我们能够通过一些手段来拿到Crash的信息，Crash信息里面最重要的就是程序最后调用堆栈了，我们可以通过调用堆栈，来定位程序出问题的的代码。
+本">
+<meta name="twitter:image" content="http://7xiutw.com1.z0.glb.clouddn.com/E70AF4F3-8BA4-4C7E-9B72-7EFE769C35DF.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"hide"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> iOS Crash收集,符号化分析看我就够了 | 不曾拥有的技术博客 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta custom-logo">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">不曾拥有的技术博客</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                iOS Crash收集,符号化分析看我就够了
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-08-03T11:47:42+08:00" content="2016-08-03">
+              2016-08-03
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/08/03/iOS-Crash收集-符号化分析看我就够了/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/08/03/iOS-Crash收集-符号化分析看我就够了/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             &nbsp; | &nbsp;
+              <span id="/2016/08/03/iOS-Crash收集-符号化分析看我就够了/"class="leancloud_visitors" data-flag-title="iOS Crash收集,符号化分析看我就够了">
+                       &nbsp;阅读次数
+                      </span>
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Crash是iOS平台的一个老生常谈的问题了，在应用开发阶段，我们可以通过设备连接电脑进行调试，当应用Crash的时候，大部分会断到问题代码那一行，我们可以很直观的看到问题的所在，但是当应用发布之后，出现Crash，我们就很难定位到问题所在了。</p>
+<p>不过好在我们能够通过一些手段来拿到Crash的信息，Crash信息里面最重要的就是程序最后调用堆栈了，我们可以通过调用堆栈，来定位程序出问题的的代码。</p>
+<p>本文将涵盖Crash方面的各种问题，知识点。</p>
+<a id="more"></a>
+<h1 id="Crash信息"><a href="#Crash信息" class="headerlink" title="Crash信息"></a>Crash信息</h1><p>我们平常所说的Crash信息包含两种Crash信息， 一种是App崩溃时，系统收集到的Crash信息，另外一种是崩溃时，我们自己用代码捕获到的Crash信息。</p>
+<h2 id="iOS-系统收集的Crash信息"><a href="#iOS-系统收集的Crash信息" class="headerlink" title="iOS 系统收集的Crash信息"></a>iOS 系统收集的Crash信息</h2><p>系统收集的Crash信息非常详细，但是缺点是我们只能通过将设备连接电脑才能拿到，所以对我们定位已发布版本的问题是没有什么帮助的。</p>
+<p>我们可以通过<code>xcode-&gt;window-&gt;devices</code>找到自己的设备，然后点击<code>View Device Logs</code>来查看设备上保存的所有Crash信息</p>
+<p>下面是一个标准的系统收集的Crash信息,只截取了一部分<br><img src="http://7xiutw.com1.z0.glb.clouddn.com/E70AF4F3-8BA4-4C7E-9B72-7EFE769C35DF.png" alt=""></p>
+<p>Crash里面记录了崩溃的设备信息，App的版本信息等等<br>比较重要的信息是 <code>Incident Identifier</code></p>
+<figure class="highlight maxima"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Incident Identifier: 7DD7F9A3-B0F1-4F00-<span class="number">8B58</span>-3A738A15F344</span><br></pre></td></tr></table></figure>
+<p>Incident Identifier 是二进制包的UUID，这个UUID与build生成的<strong>app.dSYM符号文件</strong>是一一对应的。</p>
+<p>接着就是最重要的程序调用堆栈（backtrace）</p>
+<figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">0 </span>  libsystem_platform.dylib      	<span class="number">0</span>x0000000181bd1908 <span class="number">0</span>x181bcc000 + <span class="number">22792</span></span><br><span class="line"><span class="symbol">1 </span>  CrashTest                     	<span class="number">0</span>x0000000100016234 <span class="number">0</span>x100010000 + <span class="number">25140</span></span><br><span class="line"><span class="symbol">2 </span>  libdispatch.dylib             	<span class="number">0</span>x00000001819bd4bc <span class="number">0</span>x1819bc000 + <span class="number">5308</span></span><br><span class="line"><span class="symbol">3 </span>  libdispatch.dylib             	<span class="number">0</span>x00000001819bd47c <span class="number">0</span>x1819bc000 + <span class="number">5244</span></span><br><span class="line"><span class="symbol">4 </span>  libdispatch.dylib             	<span class="number">0</span>x00000001819c8d08 <span class="number">0</span>x1819bc000 + <span class="number">52488</span></span><br><span class="line"><span class="symbol">5 </span>  libdispatch.dylib             	<span class="number">0</span>x00000001819bd47c <span class="number">0</span>x1819bc000 + <span class="number">5244</span></span><br><span class="line"><span class="symbol">6 </span>  libdispatch.dylib             	<span class="number">0</span>x00000001819d4090 <span class="number">0</span>x1819bc000 + <span class="number">98448</span></span><br><span class="line"><span class="symbol">7 </span>  libdispatch.dylib             	<span class="number">0</span>x00000001819bf970 <span class="number">0</span>x1819bc000 + <span class="number">14704</span></span><br><span class="line"><span class="symbol">8 </span>  libdispatch.dylib             	<span class="number">0</span>x00000001819c263c <span class="number">0</span>x1819bc000 + <span class="number">26172</span></span><br><span class="line"><span class="symbol">9 </span>  CoreFoundation                	<span class="number">0</span>x0000000181f28d50 <span class="number">0</span>x181e48000 + <span class="number">920912</span></span><br></pre></td></tr></table></figure>
+<p>调用堆栈分为四列<br>第一列：调用顺序，最上面的是最后调用的位置<br>第二列：对应函数所在的二进制文件名，即binary image<br>第三列：对应函数在栈上的地址 即stack address<br>第四列：地址或者符号＋偏移，把地址转化成10进制然后再加上偏移，最后转化为16进制＝第三列的地址</p>
+<p>上面的调用堆栈中第三列的 0x00000001819bd47c 这是对应代码的<strong>stack address</strong>地址，如果系统没有 ASLR 的话，用这个 stack address 就能在dsym 中找到对应符号信息，但是iOS系统是有 ASLR 机制的，所以这个地址不能直接拿来定位代码位置，需要了解ASLR之后，进行相应的计算才能得到最终的地址</p>
+<h2 id="ASLR"><a href="#ASLR" class="headerlink" title="ASLR"></a>ASLR</h2><blockquote>
+<p>ASLR（Address space layout randomization）是一种针对缓冲区溢出的安全保护技术，通过对堆、栈、共享库映射等线性区布局的随机化，通过增加攻击者预测目的地址的难度，防止攻击者直接定位攻击代码位置，达到阻止溢出攻击的目的。据研究表明ASLR可以有效的降低缓冲区溢出攻击的成功率，如今Linux、FreeBSD、Windows等主流操作系统都已采用了该技术。</p>
+</blockquote>
+<p>Apple在iOS4.3内导入了ASLR。</p>
+<p>Android 4.0提供地址空间配置随机加载（ASLR），以帮助保护系统和第三方应用程序免受由于内存管理问题的攻击，在Android 4.1中加入地址无关代码（position-independent code）的支持。</p>
+<p>由于ios系统使用了ASLR,那么我们拿到的Crash堆栈信息里面的stack address是程序运行时的地址，与app.dSYM中的symbol address是无法对应的。程序运行时加载的地址都是随机的，每次会有一个随机的偏移量offset。所以我们拿到stack address需要做如下转换</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">symble <span class="selector-tag">address</span> ＝ stack <span class="selector-tag">address</span> －offset；</span><br></pre></td></tr></table></figure>
+<h2 id="获取ASLR-偏移量"><a href="#获取ASLR-偏移量" class="headerlink" title="获取ASLR 偏移量"></a>获取ASLR 偏移量</h2><p>每次程序运行，偏移量都不同，所以需要我们在运行时获取</p>
+<p><strong>运行时用代码获取</strong></p>
+<figure class="highlight livescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">\#import</span> &lt;mach-o/dyld.h&gt;</span><br><span class="line">long offset;</span><br><span class="line"><span class="keyword">for</span> (uint32_t i = <span class="number">0</span>; i &lt; _dyld_image_count(); i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> <span class="function"><span class="params">(_dyld_get_image_header(i)-&gt;filetype == MH_EXECUTE)</span> &#123;</span><br><span class="line">            <span class="title">offset</span> = <span class="title">_dyld_get_image_vmaddr_slide</span><span class="params">(i)</span>;</span><br><span class="line">            <span class="title">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span></span><br></pre></td></tr></table></figure>
+<p><strong>从crash文件计算得到</strong></p>
+<p>如果我们拿到的是Crash文件，我们可以从文件中找到偏移量，入下图<br><img src="http://7xiutw.com1.z0.glb.clouddn.com/9FBDFA0E-EDCF-434D-A41B-7BCC527EE9C7.png" alt=""><br>序号为3的一行是我们App的调用，红圈中的地址是我们的二进制文件中，App代码所在的起始地址（二进制文件由我们的App可执行代码，以及其它静态库，等等组成），红圈中去掉最高位1，0x94000就是offset。</p>
+<p>如果你拿到的堆栈信息是半符号化的，即第四列0x100094000 这里变成了CrashTest这种符号，你可以接着去Crash文件的下面 找到offset</p>
+<p><img src="http://7xiutw.com1.z0.glb.clouddn.com/0D86F3E9-E5CE-44DC-9BB0-022630C6EFCD.png" alt=""></p>
+<p>也就是说我们从crash文件拿到binary image（这里是CrashTest）的地址区域<code>0x100094000 - 0x10009bfff</code>,然后用起始地址<code>0x100094000 - 0x100000000</code>就得到了偏移量，至于为什么减去0x100000000，在后面分析<strong>mach-o</strong>文件内容的时候会解释</p>
+<h2 id="定位崩溃位置"><a href="#定位崩溃位置" class="headerlink" title="定位崩溃位置"></a>定位崩溃位置</h2><p>拿到了<code>stack address</code>,<code>offset</code>,即可计算最终的符号地址</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">symble <span class="selector-tag">address</span> ＝ stack <span class="selector-tag">address</span> －offset；</span><br></pre></td></tr></table></figure>
+<p>上面的例子中我们计算得到<code>symble address ＝0x100097190</code></p>
+<p>我们可以通过<code>atos</code>或者<code>dwarfdump</code>命令来解析地址</p>
+<p><strong>atos 需要计算symble address</strong></p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">atos -arch arm64  -o ALiuLian_Indiana<span class="selector-class">.app</span>/<span class="selector-tag">ALiuLian_Indiana</span>  <span class="selector-tag">0x100097190</span></span><br><span class="line">结果</span><br><span class="line"><span class="selector-tag">-</span><span class="selector-attr">[XXXXX btnPressed:]</span> (in CrashTest) (ViewController.<span class="attribute">m</span>:<span class="number">33</span>)</span><br></pre></td></tr></table></figure>
+<p><strong>dwarfdump  需要计算symble address</strong></p>
+<figure class="highlight x86asm"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">dwarfdump --arch arm64 --lookup <span class="number">0x100097190</span> CrashTest.app.dSYM/</span><br><span class="line"></span><br><span class="line">结果</span><br><span class="line">Looking <span class="meta">up</span> address: <span class="number">0x0000000100005eac</span> <span class="keyword">in</span> <span class="string">.debug</span>_info... found!</span><br><span class="line"></span><br><span class="line"><span class="number">0x0004f370</span>: Compile Unit: length = <span class="number">0x00000224</span>  version = <span class="number">0x0002</span>  abbr_offset = <span class="number">0x00000000</span>  addr_size = <span class="number">0x08</span>  (next CU <span class="meta">at</span> <span class="number">0x0004f598</span>)</span><br><span class="line"></span><br><span class="line"><span class="number">0x0004f37b</span>: TAG_compile_unit [<span class="number">99</span>] *</span><br><span class="line">             AT_producer( <span class="string">"Apple LLVM version 7.0.2 (clang-700.1.81)"</span> )</span><br><span class="line">             AT_language( DW_LANG_ObjC )</span><br><span class="line">             AT_name( <span class="string">"/Users/zhangxu/Desktop/IOS_Project/CrashTest/CrashTest/ViewController.m"</span> )</span><br><span class="line">             AT_stmt_list( <span class="number">0x000082b2</span> )</span><br><span class="line">             AT_comp_dir( <span class="string">"/Users/zhangxu/Desktop/IOS_Project/CrashTest"</span> )</span><br><span class="line">             AT_APPLE_major_runtime_vers( <span class="number">0x02</span> )</span><br><span class="line">             AT_low_pc( <span class="number">0x0000000100005de4</span> )</span><br><span class="line">             AT_high_pc( <span class="number">0x0000000100005f98</span> )</span><br><span class="line"></span><br><span class="line"><span class="number">0x0004f430</span>:     TAG_subprogram [<span class="number">105</span>] *</span><br><span class="line">                 AT_low_pc( <span class="number">0x0000000100005e34</span> )</span><br><span class="line">                 AT_high_pc( <span class="number">0x0000000100005ee8</span> )</span><br><span class="line">                 AT_frame_base( reg29 )</span><br><span class="line">                 AT_object_pointer( &#123;<span class="number">0x0004f44e</span>&#125; )</span><br><span class="line">                 AT_name( <span class="string">"-[ViewController btnPressed:]"</span> )</span><br><span class="line">                 AT_decl_file( <span class="string">"/Users/zhangxu/Desktop/IOS_Project/CrashTest/CrashTest/ViewController.m"</span> )</span><br><span class="line">                 AT_decl_line( <span class="number">21</span> )</span><br><span class="line">                 AT_prototyped( <span class="number">0x01</span> )</span><br><span class="line">Line table dir : <span class="string">'/Users/zhangxu/Desktop/IOS_Project/CrashTest/CrashTest'</span></span><br><span class="line">Line table file: <span class="string">'ViewController.m'</span> line <span class="number">33</span>, column <span class="number">5</span> with start address <span class="number">0x0000000100005ea0</span></span><br><span class="line"></span><br><span class="line">Looking <span class="meta">up</span> address: <span class="number">0x0000000100005eac</span> <span class="keyword">in</span> <span class="string">.debug</span>_frame... <span class="keyword">not</span> found.</span><br></pre></td></tr></table></figure>
+<p><strong>atos 不需要计算symble address的方式</strong><br>另外我们也可以不去计算<code>symble address</code>,我们可以把第三列以及第四列＋号前的地址输入，让其自己自己算。当然前提是第四列的地址不是符号化的，比如下面这样</p>
+<figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">3 </span>  CrashTest                     	<span class="number">0</span>x100099eac <span class="number">0</span>x100094000 + <span class="number">24236</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">atos -o CrashTest<span class="selector-class">.app</span><span class="selector-class">.dSYM</span>/Contents/Resources/DWARF/CrashTest -arch arm64 -l <span class="number">0</span>x100094000 <span class="number">0</span>x100099eae</span><br><span class="line"></span><br><span class="line">结果</span><br><span class="line">-[ViewController btnPressed:] (<span class="keyword">in</span> CrashTest) (ViewController<span class="selector-class">.m</span>:<span class="number">33</span>)</span><br></pre></td></tr></table></figure>
+<h1 id="符号表"><a href="#符号表" class="headerlink" title="符号表"></a>符号表</h1><h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>符号表就是指在Xcode项目编译后，在编译生成的二进制文件.app的同级目录下生成的同名的.dSYM文件。<br>.dSYM文件其实是一个目录，在子目录中包含了一个16进制的保存函数地址映射信息的中转文件，所有Debug的symbols都在这个文件中(包括文件名、函数名、行号等)，所以也称之为调试符号信息文件。<br>一般地，Xcode项目每次编译后，都会生成一个新的.dSYM文件。因此，App的每一个发布版本，都需要备份一个对应的.dSYM文件，以便后续调试定位问题。</p>
+<p>使用Xcode的Organizer查看崩溃日志时，也自动根据本地存储的.dSYM文件进行了符号化的操作。<br>并且，崩溃日志也有UUID信息，这个UUID和对应的.dSYM文件是一致的，<strong>即只有当三者的UUID一致时</strong>，才可以正确的把函数地址符号化。</p>
+<p>一般地，Xcode项目默认的配置是会在编译后生成.dSYM，开发者无需额外修改配置。<br>项目的Build Settings的相关配置如下：</p>
+<figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Generate <span class="keyword">Debug</span> Symbols = Yes</span><br><span class="line"><span class="keyword">Debug</span> <span class="keyword">Information</span> <span class="keyword">Format</span> = DWARF with dSYM <span class="keyword">File</span></span><br></pre></td></tr></table></figure>
+<h2 id="获取符号文件的UUID"><a href="#获取符号文件的UUID" class="headerlink" title="获取符号文件的UUID"></a>获取符号文件的UUID</h2><p><strong>dwarfdump</strong> </p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dwarfdump --uuid CrashTest<span class="selector-class">.app</span><span class="selector-class">.dSYM</span></span><br><span class="line">结果</span><br><span class="line">UUID: <span class="number">71</span>BEA9E4-BA71-<span class="number">3436</span>-AD49-<span class="number">234</span>FCEEBBE8E (arm64) CrashTest<span class="selector-class">.app</span><span class="selector-class">.dSYM</span>/Contents/Resources/DWARF/CrashTest</span><br></pre></td></tr></table></figure>
+<p><strong>mdls</strong></p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">mdls -name com_apple_xcode_dsym_uuids -raw CrashTest<span class="selector-class">.app</span><span class="selector-class">.dSYM</span></span><br><span class="line">结果</span><br><span class="line">(</span><br><span class="line">    <span class="string">"71BEA9E4-BA71-3436-AD49-234FCEEBBE8E"</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<h2 id="用符号表解析Crash文件"><a href="#用符号表解析Crash文件" class="headerlink" title="用符号表解析Crash文件"></a>用符号表解析Crash文件</h2><p>当我们拿到的Crash文件与dsym符号文件的uuid相同，就可以对Crash文件进行整体的符号化了。<br>使用到命令行工具<code>symbolicatecrash</code></p>
+<p>不同的xcode版本，这个工具的位置不同，本人测试环境为xcode7.2，该命令的目录如下</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="regexp">/Applications/</span>Xcode.app<span class="regexp">/Contents/</span>SharedFrameworks<span class="regexp">/DVTFoundation.framework/</span>Versions<span class="regexp">/A/</span>Resources<span class="regexp">/symbolicatecrash</span></span><br></pre></td></tr></table></figure>
+<p>在使用该命令之前需要添加环境变量<code>DEVELOPER_DIR</code></p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">export DEVELOPER_DIR=<span class="regexp">/Applications/</span>Xcode.app<span class="regexp">/Contents/</span>Developer</span><br></pre></td></tr></table></figure>
+<p>最后通过命令符号化Crash文件</p>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/Applications/Xcode.<span class="keyword">app</span>/xxx/symbolicatecrash   <span class="keyword">test</span>.crash  CrashTest.<span class="keyword">app</span>.dSYM &gt; <span class="keyword">test</span>.<span class="built_in">log</span></span><br></pre></td></tr></table></figure>
+<p>最后打开log文件，已经能够看到具体问题代码了<br><img src="http://7xiutw.com1.z0.glb.clouddn.com/3EBAA6E7-636A-4E2C-B79C-F8E539FA2955.png" alt=""></p>
+<h1 id="Mach-o文件"><a href="#Mach-o文件" class="headerlink" title="Mach-o文件"></a>Mach-o文件</h1><p>在OSX和iOS中可执行文件是Mach-o格式。Mach-o包含三个基本区域</p>
+<ul>
+<li>头部（header structure）。</li>
+<li>加载命令（load command）即二进制文件加载的所有段会在这里列出来。</li>
+<li>段（segment）。可以拥有多个段（segment），每个段可以拥有零个或多个区域（section）。每一个段（segment）都拥有一段虚拟地址映射到进程的地址空间。<br><img src="http://7xiutw.com1.z0.glb.clouddn.com/mach_o_segments.png" alt=""></li>
+</ul>
+<p>这里并不打算详细介绍Mach-o，只会提及与本文Crash相关的信息</p>
+<h2 id="查看Mach-o文件的UUID"><a href="#查看Mach-o文件的UUID" class="headerlink" title="查看Mach-o文件的UUID"></a>查看Mach-o文件的UUID</h2><p>Mach-o文件的uuid保存在 <code>load commond</code>区域，叫做<code>LC_UUID</code>,我们可以通过如下命令查看Mach-o文件的<code>load commond</code>区</p>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">otool -<span class="keyword">l</span> CrashTest.<span class="keyword">app</span>/CrashTest &gt;load_commond.txt</span><br></pre></td></tr></table></figure>
+<p>打开文件搜索LC_UUID,即能查到uuid的值</p>
+<figure class="highlight crystal"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">.......</span><br><span class="line">Load command <span class="number">7</span></span><br><span class="line">          cmd LC_LOAD_DYLINKER</span><br><span class="line">      cmdsize <span class="number">32</span></span><br><span class="line">         name /usr/<span class="class"><span class="keyword">lib</span>/<span class="title">dyld</span> (<span class="title">offset</span> 12)</span></span><br><span class="line">Load command <span class="number">8</span></span><br><span class="line">     cmd LC_UUID</span><br><span class="line"> cmdsize <span class="number">24</span></span><br><span class="line">    uuid <span class="number">71</span>BEA9E4-BA71-<span class="number">3436</span>-AD49-<span class="number">234</span>FCEEBBE8E</span><br><span class="line">Load command <span class="number">9</span></span><br><span class="line">      cmd LC_VERSION_MIN_IPHONEOS</span><br><span class="line">  cmdsize <span class="number">16</span></span><br><span class="line">  version <span class="number">9.2</span></span><br><span class="line">      sdk <span class="number">9.2</span></span><br><span class="line">.......</span><br></pre></td></tr></table></figure>
+<p>当然也可以通过命令行直接查看Mach-o文件的uuid</p>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dwarfdump --uuid CrashTest.<span class="keyword">app</span>/CrashTest</span><br><span class="line">结果</span><br><span class="line">UUID: 71BEA9E4-BA71-3436-AD49-234FCEEBBE8E (arm64) CrashTest.<span class="keyword">app</span>/CrashTest</span><br></pre></td></tr></table></figure>
+<p>这里的到的UUID用来验证是否与dysm符号文件中的UUID对应。</p>
+<h2 id="为什么上面的偏移量计算要减去0x100000000"><a href="#为什么上面的偏移量计算要减去0x100000000" class="headerlink" title="为什么上面的偏移量计算要减去0x100000000"></a>为什么上面的偏移量计算要减去0x100000000</h2><p>Mach-o文件的<code>load commond</code>区列出了可执行文件包括的所有segment,一个可执行文件包含多个段。可执行文件不同的部分将会加载进不同的段。</p>
+<p>我们这里主要看<code>Load command 0 (__PAGEZERO段)</code>与<code>Load command 1（__TEXT段）</code></p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">Load command <span class="number">0</span></span><br><span class="line">      cmd LC_SEGMENT_64</span><br><span class="line">  cmdsize <span class="number">72</span></span><br><span class="line">  segname __PAGEZERO</span><br><span class="line">   vmaddr <span class="number">0</span>x00000<span class="number">00000000000</span></span><br><span class="line">   vmsize <span class="number">0</span>x0000<span class="number">000100000000</span></span><br><span class="line">  fileoff <span class="number">0</span></span><br><span class="line"> filesize <span class="number">0</span></span><br><span class="line">  maxprot <span class="number">0x00000000</span></span><br><span class="line"> initprot <span class="number">0x00000000</span></span><br><span class="line">   nsects <span class="number">0</span></span><br><span class="line">    flags <span class="number">0</span>x0</span><br><span class="line">Load command <span class="number">1</span></span><br><span class="line">      cmd LC_SEGMENT_64</span><br><span class="line">  cmdsize <span class="number">712</span></span><br><span class="line">  segname __TEXT</span><br><span class="line">   vmaddr <span class="number">0</span>x0000<span class="number">000100000000</span></span><br><span class="line">   vmsize <span class="number">0</span>x00000<span class="number">00000008000</span></span><br><span class="line">  fileoff <span class="number">0</span></span><br><span class="line"> filesize <span class="number">32768</span></span><br><span class="line">  maxprot <span class="number">0x00000005</span></span><br><span class="line"> initprot <span class="number">0x00000005</span></span><br><span class="line">   nsects <span class="number">8</span></span><br><span class="line">    flags <span class="number">0</span>x0</span><br></pre></td></tr></table></figure>
+<p>第一个段是__PAGEZERO。这个有4GB(0x100000000)大小。这4GB并不是文件的真实大小，但是说明了进程的前4GB地址空间将会被映射为，不能执行，不能读，不能写。这就是为什么在去写NULL指针或者一些低位的指针的时候，你会得到一个EXC_BAD_ACCESS错误。这是操作系统在尝试防止你引起系统崩溃</p>
+<p>__TEXT段包含了可执行的代码，即我们自己app的代码。它们被以只读和可执行的方式映射。进程被允许执行这些代码，但是不能修改。这些代码也不能改变它们自己，并且这些页从来不会被污染。</p>
+<p>从<strong>TEXT段的加载命令可以看出，</strong>TEXT段映射对应的虚拟地址空间是从0x0000000100000000开始的。因为__PAGEZERO段是从0开始size为0x0000000100000000</p>
+<p><strong>没有 ASLR机制时：</strong></p>
+<p>加载时 装载器会将此 ELF 文件的 前 32768个字节（因为 offset 0 ，filesize 32768）映射到 进程空间以  0x0000000100000000 开始的一块虚拟内存空间里. </p>
+<p><strong>有ASLR 机制时：</strong></p>
+<p>加载时 装载器会将此 ELF 文件的 前 32768 个字节（因为 offset 0 ，filesize 32768）映射到 进程空间以  0x0000000100000000 （+offset）开始的一块虚拟内存空间里. </p>
+<p>所以 ： 如果没有 ASLR 机制，那么运行时的内存布局 就和  Load command 中指定的布局一致，也就意味着stack address和 symbol address 一致</p>
+<p>有 ASLR 的情况也不复杂，只是 加了一个 随意的偏移量 offset</p>
+<p>所以当我们从Crash文件中拿到 我们app的起始地址，用 起始地址－0x100000000,就能得到ASLR生成的offset</p>
+<h1 id="代码捕获Crash信息"><a href="#代码捕获Crash信息" class="headerlink" title="代码捕获Crash信息"></a>代码捕获Crash信息</h1><p>iOS系统收集的Crash信息，必须要用户主动上传（去itunes connect查看），或者连接用户设备主动肚读取才能拿到，但是一般，我们根本拿不到用户的设备，所以系统收集的Crash信息对我们帮助不大，我们必须想办法自己收集Crash信息，并且在后台上传到我们的服务器。</p>
+<p>现在市面上的一些第三方Crash收集SDK都是通过代码捕获异常崩溃，然后收集Crash信息，并且提供符号化服务，典型的有友盟，Bugly。</p>
+<p>我们只需简单的几步就可以补货app抛出的NSException异常</p>
+<p><strong>注册异常补货函数</strong></p>
+<figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">NSSetUncaughtExceptionHandler(<span class="name">&amp;UncaughtExceptionHandler</span>)<span class="comment">;</span></span><br></pre></td></tr></table></figure>
+<p><strong>异常处理函数</strong></p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> UncaughtExceptionHandler(<span class="built_in">NSException</span> *exception) &#123;</span><br><span class="line">    <span class="built_in">NSArray</span> *arr = [exception callStackSymbols];<span class="comment">//得到当前调用栈信息</span></span><br><span class="line">    <span class="built_in">NSString</span> *reason = [exception reason];<span class="comment">//非常重要，就是崩溃的原因</span></span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSString</span> *str=[<span class="built_in">NSString</span> stringWithFormat:<span class="string">@"exception type : %@ \n crash reason : %@ \n call stack info : %@"</span>,name, reason, arr];</span><br><span class="line"></span><br><span class="line">    <span class="built_in">NSLog</span>(str);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样就能打印出类似下面的信息</p>
+<figure class="highlight smali"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">exception type<span class="keyword"> :</span> NSRangeException </span><br><span class="line">crash reason<span class="keyword"> :</span> *** -[__NSArrayM objectAtIndex:]: index 10 beyond bounds for empty<span class="built_in"> array </span></span><br><span class="line">call stack info<span class="keyword"> :</span> (</span><br><span class="line">0   CoreFoundation                      0x0000000181f72dc8 &lt;redacted&gt; + 148</span><br><span class="line">1   libobjc.A.dylib                     0x00000001815d7f80 objc_exception_throw + 56</span><br><span class="line">2   CoreFoundation                      0x0000000181e52dfc &lt;redacted&gt; + 0</span><br><span class="line">3   CrashTest                           0x00000001000a5eac -[ViewController btnPressed:] + 120</span><br><span class="line">4   UIKit                               0x0000000187108be8 &lt;redacted&gt; + 100</span><br><span class="line">5   UIKit                               0x0000000187108b64 &lt;redacted&gt; + 80</span><br><span class="line">6   UIKit                               0x00000001870f0870 &lt;redacted&gt; + 436</span><br></pre></td></tr></table></figure>
+<p>我们可以看到崩溃的原因</p>
+<figure class="highlight oxygene"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">*** -[__NSArrayM objectAtIndex:]: <span class="keyword">index</span> <span class="number">10</span> beyond bounds <span class="keyword">for</span> <span class="keyword">empty</span> <span class="keyword">array</span></span><br></pre></td></tr></table></figure>
+<p>可以看到崩溃的位置,注意这里的第四列已经不是纯粹的地址了，是半符号化内容，已经可以看到崩溃的函数，但是无法定位到具体的行数。</p>
+<figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">3 </span>  CrashTest                           <span class="number">0</span>x00000001000a5eac -[ViewController btnPressed:] + <span class="number">120</span></span><br></pre></td></tr></table></figure>
+<p>通过上面的分析可知，光有这些信息是不够的，我们至少需要得到ASLR 偏移量，才能得到symbol address</p>
+<figure class="highlight fix"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">symbol address</span>=<span class="string">0x00000001000a5eac-Offset</span></span><br></pre></td></tr></table></figure>
+<h2 id="获取offset"><a href="#获取offset" class="headerlink" title="获取offset"></a>获取offset</h2><figure class="highlight livescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">\#import</span> &lt;mach-o/dyld.h&gt;</span><br><span class="line">long offset;</span><br><span class="line"><span class="keyword">for</span> (uint32_t i = <span class="number">0</span>; i &lt; _dyld_image_count(); i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> <span class="function"><span class="params">(_dyld_get_image_header(i)-&gt;filetype == MH_EXECUTE)</span> &#123;</span><br><span class="line">            <span class="title">offset</span> = <span class="title">_dyld_get_image_vmaddr_slide</span><span class="params">(i)</span>;</span><br><span class="line">            <span class="title">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span></span><br></pre></td></tr></table></figure>
+<h2 id="获取二进制文件的UUID"><a href="#获取二进制文件的UUID" class="headerlink" title="获取二进制文件的UUID"></a>获取二进制文件的UUID</h2><p>如果你看过友盟后台的崩溃日志 你会发现，友盟额外的收集了如下信息<br><img src="http://7xiutw.com1.z0.glb.clouddn.com/67C26D7C-713D-4AAF-92CC-9B6BCB34A01C.png" alt=""></p>
+<p>uuid 帮助我们匹配dsym文件，<br>cpu type 帮助我们在使用命令行的时候制定指令集</p>
+<p><strong>获取UUID</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">\<span class="comment">#import &lt;mach-o/ldsyms.h&gt;</span></span><br><span class="line">NSString *<span class="function"><span class="title">executableUUID</span></span>()</span><br><span class="line">&#123;</span><br><span class="line">    const uint8_t *<span class="built_in">command</span> = (const uint8_t *)(&amp;_mh_execute_header + 1);</span><br><span class="line">    NSString *magic=[NSString stringWithFormat:@<span class="string">"%x"</span>,_mh_execute_header.magic];</span><br><span class="line">    <span class="keyword">for</span> (uint32_t idx = 0; idx &lt; _mh_execute_header.ncmds; ++idx) &#123;</span><br><span class="line">        <span class="keyword">if</span> (((const struct load_<span class="built_in">command</span> *)<span class="built_in">command</span>)-&gt;cmd == LC_UUID) &#123;</span><br><span class="line">            <span class="built_in">command</span> += sizeof(struct load_<span class="built_in">command</span>);</span><br><span class="line">            <span class="built_in">return</span> [NSString stringWithFormat:@<span class="string">"%02X%02X%02X%02X-%02X%02X-%02X%02X-%02X%02X-%02X%02X%02X%02X%02X%02X"</span>,</span><br><span class="line">                    <span class="built_in">command</span>[0], <span class="built_in">command</span>[1], <span class="built_in">command</span>[2], <span class="built_in">command</span>[3],</span><br><span class="line">                    <span class="built_in">command</span>[4], <span class="built_in">command</span>[5],</span><br><span class="line">                    <span class="built_in">command</span>[6], <span class="built_in">command</span>[7],</span><br><span class="line">                    <span class="built_in">command</span>[8], <span class="built_in">command</span>[9],</span><br><span class="line">                    <span class="built_in">command</span>[10], <span class="built_in">command</span>[11], <span class="built_in">command</span>[12], <span class="built_in">command</span>[13], <span class="built_in">command</span>[14], <span class="built_in">command</span>[15]];</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="built_in">command</span> += ((const struct load_<span class="built_in">command</span> *)<span class="built_in">command</span>)-&gt;cmdsize;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">return</span> nil;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样拿到这个Crash信息之后，通过uuid匹配到dsym文件，然后计算symbol address,最后调用命令即可得到崩溃信息</p>
+
+      
+    </div>
+    
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/07/18/iOS脚本系列之App重签名/" rel="next" title="iOS脚本系列之App重签名">
+                <i class="fa fa-chevron-left"></i> iOS脚本系列之App重签名
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/08/03/iOS-Crash收集-符号化分析看我就够了/"
+           data-title="iOS Crash收集,符号化分析看我就够了" data-url="http://yoursite.com/2016/08/03/iOS-Crash收集-符号化分析看我就够了/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/portrait.png"
+               alt="不曾拥有" />
+          <p class="site-author-name" itemprop="name">不曾拥有</p>
+          <p class="site-description motion-element" itemprop="description">不曾拥有的技术博客</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">10</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Crash信息"><span class="nav-number">1.</span> <span class="nav-text">Crash信息</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#iOS-系统收集的Crash信息"><span class="nav-number">1.1.</span> <span class="nav-text">iOS 系统收集的Crash信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ASLR"><span class="nav-number">1.2.</span> <span class="nav-text">ASLR</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#获取ASLR-偏移量"><span class="nav-number">1.3.</span> <span class="nav-text">获取ASLR 偏移量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#定位崩溃位置"><span class="nav-number">1.4.</span> <span class="nav-text">定位崩溃位置</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#符号表"><span class="nav-number">2.</span> <span class="nav-text">符号表</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#概念"><span class="nav-number">2.1.</span> <span class="nav-text">概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#获取符号文件的UUID"><span class="nav-number">2.2.</span> <span class="nav-text">获取符号文件的UUID</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#用符号表解析Crash文件"><span class="nav-number">2.3.</span> <span class="nav-text">用符号表解析Crash文件</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Mach-o文件"><span class="nav-number">3.</span> <span class="nav-text">Mach-o文件</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#查看Mach-o文件的UUID"><span class="nav-number">3.1.</span> <span class="nav-text">查看Mach-o文件的UUID</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么上面的偏移量计算要减去0x100000000"><span class="nav-number">3.2.</span> <span class="nav-text">为什么上面的偏移量计算要减去0x100000000</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#代码捕获Crash信息"><span class="nav-number">4.</span> <span class="nav-text">代码捕获Crash信息</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#获取offset"><span class="nav-number">4.1.</span> <span class="nav-text">获取offset</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#获取二进制文件的UUID"><span class="nav-number">4.2.</span> <span class="nav-text">获取二进制文件的UUID</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">不曾拥有</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">访问用户<span class="busuanzi-value" id="busuanzi_value_site_uv"></span></span>
+  
+
+  
+    <span class="site-pv">博客访问量<span class="busuanzi-value" id="busuanzi_value_site_pv"></span></span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"bucengyongyou"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+  
+
+  
+  
+  <!-- custom analytics part create by xiamo -->
+<script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+<script>AV.initialize("kNKleu3PkswnB7pW5oJ6hGeP-gzGzoHsz", "r6E7v9CeOLfby6w8lYi27W5c");</script>
+<script>
+function showTime(Counter) {
+	var query = new AV.Query(Counter);
+	$(".leancloud_visitors").each(function() {
+		var url = $(this).attr("id").trim();
+		query.equalTo("url", url);
+		query.find({
+			success: function(results) {
+				if (results.length == 0) {
+					var content = '0 ' + $(document.getElementById(url)).text();
+					$(document.getElementById(url)).text(content);
+					return;
+				}
+				for (var i = 0; i < results.length; i++) {
+					var object = results[i];
+					var content = object.get('time') + ' ' + $(document.getElementById(url)).text();
+					$(document.getElementById(url)).text(content);
+				}
+			},
+			error: function(object, error) {
+				console.log("Error: " + error.code + " " + error.message);
+			}
+		});
+
+	});
+}
+
+function addCount(Counter) {
+	var Counter = AV.Object.extend("Counter");
+	url = $(".leancloud_visitors").attr('id').trim();
+	title = $(".leancloud_visitors").attr('data-flag-title').trim();
+	var query = new AV.Query(Counter);
+	query.equalTo("url", url);
+	query.find({
+		success: function(results) {
+			if (results.length > 0) {
+				var counter = results[0];
+				counter.fetchWhenSave(true);
+				counter.increment("time");
+				counter.save(null, {
+					success: function(counter) {
+						var content =  counter.get('time') + ' ' + $(document.getElementById(url)).text();
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(counter, error) {
+						$(document.getElementById(url)).text(error.message);
+						console.log('Failed to save Visitor num, with error message: ' + error.message);
+					}
+				});
+			} else {
+				var newcounter = new Counter();
+				newcounter.set("title", title);
+				newcounter.set("url", url);
+				newcounter.set("time", 1);
+				newcounter.save(null, {
+					success: function(newcounter) {
+					    console.log("newcounter.get('time')="+newcounter.get('time'));
+						var content = newcounter.get('time') + ' ' + $(document.getElementById(url)).text();
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(newcounter, error) {
+						console.log('Failed to create');
+					}
+				});
+			}
+		},
+		error: function(error) {
+			console.log('Error:' + error.code + " " + error.message);
+		}
+	});
+}
+$(function() {
+	var Counter = AV.Object.extend("Counter");
+	if ($('.leancloud_visitors').length == 1) {
+		addCount(Counter);
+	} else if ($('.post-title-link').length > 1) {
+		showTime(Counter);
+	}
+}); 
+</script>
+  
+</body>
+</html>
