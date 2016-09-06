@@ -1,0 +1,742 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="从事iOS开发这么长时间，动画，交互效果也写了不少，Core Animation对于我来说并不陌生，但是，对于一些不常用的属性，理解的缺并不是很深刻，所以最近抽时间把Core Animation又熟悉了一遍，本篇文章算是对Core Animation的一份迟来的总结
+不过这篇文章，仍然不会是一篇入门文章。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Core Animation迟来的总结">
+<meta property="og:url" content="http://yoursite.com/2016/09/06/Core-Animation迟来的总结/index.html">
+<meta property="og:site_name" content="不曾拥有的技术博客">
+<meta property="og:description" content="从事iOS开发这么长时间，动画，交互效果也写了不少，Core Animation对于我来说并不陌生，但是，对于一些不常用的属性，理解的缺并不是很深刻，所以最近抽时间把Core Animation又熟悉了一遍，本篇文章算是对Core Animation的一份迟来的总结
+不过这篇文章，仍然不会是一篇入门文章。">
+<meta property="og:updated_time" content="2016-09-06T09:14:52.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Core Animation迟来的总结">
+<meta name="twitter:description" content="从事iOS开发这么长时间，动画，交互效果也写了不少，Core Animation对于我来说并不陌生，但是，对于一些不常用的属性，理解的缺并不是很深刻，所以最近抽时间把Core Animation又熟悉了一遍，本篇文章算是对Core Animation的一份迟来的总结
+不过这篇文章，仍然不会是一篇入门文章。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"hide"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> Core Animation迟来的总结 | 不曾拥有的技术博客 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta custom-logo">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">不曾拥有的技术博客</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Core Animation迟来的总结
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-09-06T14:50:45+08:00" content="2016-09-06">
+              2016-09-06
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/09/06/Core-Animation迟来的总结/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/06/Core-Animation迟来的总结/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             &nbsp; | &nbsp;
+              <span id="/2016/09/06/Core-Animation迟来的总结/"class="leancloud_visitors" data-flag-title="Core Animation迟来的总结">
+                       &nbsp;阅读次数
+                      </span>
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>从事iOS开发这么长时间，动画，交互效果也写了不少，Core Animation对于我来说并不陌生，但是，对于一些不常用的属性，理解的缺并不是很深刻，所以最近抽时间把Core Animation又熟悉了一遍，本篇文章算是对Core Animation的一份迟来的总结</p>
+<p>不过这篇文章，仍然不会是一篇入门文章。</p>
+<a id="more"></a>
+<h1 id="Layer-Tree"><a href="#Layer-Tree" class="headerlink" title="Layer Tree"></a>Layer Tree</h1><p>其实说是讨论Core Animation，我实际上讨论的是<strong>QuartzCore Framework</strong>,这个框架最重要的概念就是各种layer,以及应用到layer上的动画</p>
+<p>屏幕中多个layer一层一层叠加，形成了Layer Tree（图层树），而iOS，同时维护着三个Layer Tree即<br><code>Model layer tree</code>,<code>Presentation tree</code>,<code>Render tree</code></p>
+<ul>
+<li><strong>Model tree</strong>中的layer就是我们通常接触到的layer,当我们修改layer的属性的时候，就会立即修改Model tree中的layer的值，比如<code>layer.position = CGPointMake(0,0);</code> 这里的修改会直接影响Model tree中的layer的postion值</li>
+<li><strong>Presentation tree</strong> 反映Layer在屏幕中的真实位置，所以叫”呈现树”，比如我们创建一个CABaseAnimation将layer移动到（100，100），layer原始位置(0,0)，在动画中途，访问layer.position(Model tree),得到（0,0）但是访问layer.presentationLayer.position（Presentation tree），得到的值则是屏幕中layer的实际位置。<strong>CABaseAnimation注动画并不会改变layer的实际值（Model tree）</strong></li>
+<li><strong>Render tree</strong> 渲染树是私有的，你无法访问到，渲染树是对呈现树的数据进行渲染，为了不阻塞主线程，渲染的过程是在单独的进程或线程中进行的,所以你会发现Animation的动画并不会阻塞主线程。<br>渲染树是CoreAnimation内部的功能，我们基本不会遇到它，而模型树和呈现树却经常会碰到。</li>
+</ul>
+<h1 id="CABaseAnimation"><a href="#CABaseAnimation" class="headerlink" title="CABaseAnimation"></a>CABaseAnimation</h1><p>基础动画类，提供了fromValue,toValue,byValue这种起止值的简单配置,配合keyPath能够使相应的属性，在fromValue,toValue,byValue值之间差值动画</p>
+<h2 id="fromValue-toValue-byValue"><a href="#fromValue-toValue-byValue" class="headerlink" title="fromValue,toValue,byValue"></a>fromValue,toValue,byValue</h2><p>fromValue指定开始的值<br>toValue指定结束的值<br>byValue指定在目前的状态上<strong>叠加</strong>的值</p>
+<p>下面是三个value不同的组合状态下，差值是如何计算的</p>
+<p>只有fromValue有值， 在fromValue与当前 presentation value（呈现树）的值之间差值<br>只有toValue有值， 在current value of the property in the render tree（当前render tree中的属性值）与toValue之间差值<br>只有byValue有值，在current value of the property in the render tree与current value of the property in the render tree＋byValue之间差值</p>
+<p>fromValue与byValue有值，在fromValue与fromValue+byValue之间差值<br>byValye与toValue有值，在toValue-byValue与toValue之间差值</p>
+<h1 id="CAPropertyAnimation"><a href="#CAPropertyAnimation" class="headerlink" title="CAPropertyAnimation"></a>CAPropertyAnimation</h1><p>这个类是 CABaseAnimation，CAKeyframeAnimation的基类，只提供了keyPath,additive,cumulative,valueFunction几个属性。其中keyPath不必多说，主要理解additive,cumulative两个属性</p>
+<h2 id="additive"><a href="#additive" class="headerlink" title="additive"></a>additive</h2><p>是否叠加，设置additive之后会将动画设定的value叠加到layer当前（动画前）presentation tree 中的值<br>比如  CABaseAnimation   fromValue=(0,100)    toValue=(100,100)   layer的位置（0，300）<br>当additive=false 的时候很好理解， 此次动画的presentation 从（0，100）到（100，100） 动画开始layer从（0，300）闪到（0，100）然后动画到（100，100）</p>
+<p>当additive=yes 的时候，layer当前presentation Value=(0,300)  叠加fromValue后 动画初始presentation Value=(0,400),  叠加toValue后 动画结束presentation Value=(100,400)，  <strong>注意这里的叠加都是相对最开始的presentation Value=(0,300)</strong>，<br>所以此次动画的presentation 从（0，400）到（100，400），动画开始layer 闪现到（0，400）然后开始动画到（100，400）</p>
+<p>所以如果想让一个view 往左移动100,往右移动100,一般我们有两种做法（CAKeyFrameAnimation）<br>1.获取view的位置postion1，然后计算其左边100的positionLeft,计算positionRight<br>values=@[position1,positionleft,positionRight]<br>2.不需要知道view的位置，使用additive=yes<br>values=@[(0,0),@(-100,0),@(100,0)];</p>
+<p><strong>注意additive=yes的时候是对layer未进行动画前的presentation tree中的值进行叠加</strong></p>
+<p>假设上例中 layer=(200,200)<br>方法2中得到的三个阶段的 presentation值<br>（200＋0，200+0）＝（200，200）<br>（200-100，200+0）＝（100，200）<br>（200+100，200+0）＝（300，200）<br>如果 不是对未进行动画前的presentation（200，200）进行叠加，而是对前一个阶段的presentation 进行叠加<br>（200＋0，200+0）＝（200，200）<br>（200-100，200+0）＝（100，200）<br>（100+100，200+0）＝（200，200）  第三次回到初识位置，而不是去右边100<br>观察动画，确认是第一种情况  印证了使用的是未进行动画前的presentation值进行叠加</p>
+<h2 id="cumulative"><a href="#cumulative" class="headerlink" title="cumulative"></a>cumulative</h2><blockquote>
+<p>The `cumulative’ property affects how repeating animations produce their result</p>
+</blockquote>
+<p>只对repeaCount&gt;1 的动画有效,当前动画的值＝上一次循环动画结束的值＋动画本身设置的值</p>
+<p>比如 layer动画 fromValue=(100,100)  toValue=(200,200)  循环次数2<br>第一次循环  （100，100）－（200，200）<br>第二次唇环  （200+100，200+100） － （200+200，200+200）<br>所以会看到  第二次循环的时候，动画有一个跳跃，从 （200，200）跳到（300，300）<br>一般设置cumulative的时候，最好初始值设置为0<br>比如从0度旋转到180度， repeatCount=2  cumulative=YES 就是旋转360度<br>如果从30度 旋转到180度  repeatCount=2  cumulative=YES  那么，第二次就是有一个跳动 （从180突然跳到210）然后再开始旋转</p>
+<h1 id="CAKeyframeAnimation"><a href="#CAKeyframeAnimation" class="headerlink" title="CAKeyframeAnimation"></a>CAKeyframeAnimation</h1><p>CAKeyframeAnimation相对于CABaseAnimation，在动画的控制上更加精细，我们可以指定一组value来对属性进行动画。value上面的每个值也就称为关键帧</p>
+<h2 id="values-keytimes"><a href="#values-keytimes" class="headerlink" title="values  keytimes"></a>values  keytimes</h2><p>values与keytimes是一一对应的，keytimes为［0-1］的区间</p>
+<h2 id="timingFuctions"><a href="#timingFuctions" class="headerlink" title="timingFuctions"></a>timingFuctions</h2><p>时间函数，一般动画是线性差值，即整个动画是匀速的，我们也可以改变差值函数，来时动画达到变速效果，比如常见的easeIn,easeOut,bounds等等</p>
+<p>注意timingFuctions是要比values和keytimes少一项的，因为timingFuctions描述的是一个区间的曲线，比如values＝［a,b,c］那么timingFuctions＝［x,y］ a到b 应用x曲线   b到c 应用y曲线<br>当然也可以整个动画使用一个曲线，需要配置timingFunction</p>
+<h2 id="path"><a href="#path" class="headerlink" title="path"></a>path</h2><p>此path不是keyPath主意区分，一般用来做position动画</p>
+<p>可以指定一个CGPath,一般指定一个贝塞尔曲线，当其指定的时候values被忽略<br>layer会沿着path的路径运动。并且取path上面的几个点做区间<br>比如path是一个矩形，那么就会去四个角的点，做为区间，我们可以定义相应的keytimes timingFuctions<br>比如path是一个圆形 那么 0，90，180，270，360度的圆上的四个切点为区间，我们可以定义相应的keytimes timingFuctions<br>比如path是一个自定义折线，类似下面这种<br>[path moveToPoint:CGPointMake(0, 0)];<br>[path addLineToPoint:CGPointMake(0, 100)];<br>每两个点是一个区间，等价于values=[(0,0),(0,100)…..]</p>
+<h2 id="calculationMode"><a href="#calculationMode" class="headerlink" title="calculationMode"></a>calculationMode</h2><p>动画的计算模式</p>
+<p>const kCAAnimationLinear//线性，默认<br>const kCAAnimationDiscrete//离散，无中间过程，但keyTimes设置的时间依旧生效，物体跳跃地出现在各个关键帧上<br>const kCAAnimationPaced//平均，keyTimes跟timeFunctions失效<br>const kCAAnimationCubic//三次曲线插值 ，但keyTimes设置的时间依旧生效<br>const kCAAnimationCubicPaced//三次曲线插值平均，keyTimes跟timeFunctions失效</p>
+<p>timingFunction是控制动画在时间上的曲线，calculationMode则是控制动画在value上的曲线，<br>比如动画移动路径为一个矩形，如果设置kCAAnimationCubic，那么，在经历四个顶点的时候，是圆滑移动的，不是走的直角</p>
+<h2 id="rotationMode"><a href="#rotationMode" class="headerlink" title="rotationMode"></a>rotationMode</h2><p>旋转模式，默认nil,不旋转</p>
+<p><strong>kCAAnimationRotateAuto</strong>           :rotate to match the path tangent(切线)<br><strong>kCAAnimationRotateAutoReverse</strong>     :  rotates to match the tangent ＋180 degrees</p>
+<h1 id="CAMediaTiming"><a href="#CAMediaTiming" class="headerlink" title="CAMediaTiming"></a>CAMediaTiming</h1><p>CALayer实现了CAMediaTiming协议. CALayer通过CAMediaTiming协议实现了一个有层级关系的时间系统.除了CALayer,CAAnimation也实现了此协议,用来实现动画的时间系统.<br>在CA中,有一个Absolute Time(绝对时间)的概念,可以通过CACurrentMediaTime()获得,其实这个绝对时间就是将mach_absolute_time()转换成秒后的值.这个时间和系统的uptime有关,系统重启后CACurrentMediaTime()会被重置. </p>
+<p>每个layer都有自己的local time 用来管理animation timing,一般两个不同的layer的local time 几乎是一样的，但是 一个layer的local time 会被 其parent layer 改变，或者被这个layer自己的timing parameters 改变，比如，修改layer的speed(timing parameters)  引起这个layer上的animations 的duration改变，同时也会使这个layer上面的subLayer上的动画duration改变</p>
+<p>获取一个layer 的local time</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">CFTimeInterval</span> localLayerTime = [myLayer convertTime:<span class="built_in">CACurrentMediaTime</span>() fromLayer:<span class="literal">nil</span>];</span><br></pre></td></tr></table></figure>
+<p>一旦你有某个layer的local time中的某个time value ，你就能够用这个time value 更新那些 animation object或者layer的 timing-related 的属性.</p>
+<p>local time 又分为两种，<br>active local time    : 当动画被激活的时间段是active local time<br>base local time     ：<br>timeOffset属性 只在active local time 中生效</p>
+<h2 id="begainTime"><a href="#begainTime" class="headerlink" title="begainTime"></a>begainTime</h2><p>最简单的理解就是动画的开始时间，一般我们将动画添加到layer上动画会立即开始，如果我们设置了动画的begainTime，那么动画就会在我们设定的时间开始。</p>
+<p>但是这个开始时间是相对哪个时间呢，是相对世界时间，还是相对于0（从动画添加到layer上的那一刻，认为是0）</p>
+<p>如果是相对于世界时间，那么begainTime就要设置为当前时间戳＋秒<br>如果是相对于0 那么begainTime就要设置为秒数就可以了</p>
+<p>当一个动画创建好,被加入到某个Layer的时候,会先被拷贝一份出来用于加入当前的图层,在CA事务被提交的时候,<strong>如果图层中的动画的beginTime为0,则beginTime会被设定为当前图层的当前时间,使得动画立即开始</strong>.如果你想某个直接加入图层的动画稍后执 行,可以通过手动设置这个动画的beginTime,但需要注意的是这个beginTime需要为 CACurrentMediaTime()+延迟的秒数,因为beginTime是指<strong>其父级对象的时间线上的某个时间</strong>,这个时候动画的父级对象为加入的这个图层,图层当前的时间其实为[layer convertTime:CACurrentMediaTime() fromLayer:nil],其实就等于CACurrentMediaTime(),那么再在这个layer的时间线上往后延迟一定的秒数便得到上面的就会开始动画.</p>
+<p>另外 CAAminationGroup中的子animation的begainTime可以是0-xx 这种秒数，但是这个group的beginTime必须设置为CACurrentMediaTime()＋xxx这种<br>直接add到layer上面的animation 的beginTime 必须设置为CACurrentMediaTime()＋xxx</p>
+<h2 id="timeOffset"><a href="#timeOffset" class="headerlink" title="timeOffset"></a>timeOffset</h2><p>这个timeOffset可能是这几个属性中比较难理解的一个,官方的文档也没有讲的很清楚. local time也分成两种一种是active local time 一种是basic local time.<br>timeOffset则是active local time的偏移量.<br>你将一个动画看作一个环,timeOffset改变的其实是动画在环内的起点,比如一个duration为5秒的动画,将timeOffset设置为2(或者7,模5为2),那么动画的运行则是从原来的2秒开始到5秒,接着再0秒到2秒,完成一次动画.</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">localTime</span>=(parentTime-begainTime)*speed+<span class="literal">off</span>set</span><br></pre></td></tr></table></figure>
+<p>我们再联合 begainTime 举一个例子<br>比如动画设定  2秒 从（0，0）－（200，200）<br>begainTime设置为 CACurrentMediaTime()+2.0 timeoffset设置为1.0<br>则在CACurrentMediaTime()+2.0 之前,<strong>不属于active local time</strong> 所以timeOffset在2.0秒之前不生效<br><strong>parentTime</strong> :  0－－－－－－1.0－－－－－－－2.0－－－－－－－－－－－－－－3.0<br><strong>localTime</strong>  : not active－－not active－－－ active(2.0-2.0)*speed+1.0=1.0－－－－2.0<br>动画的效果就是  开始两秒是不动的(not active local time），然后开始从（100，100）开始动画，到（200，200），然后再回到（0，0）动画到（100，100）</p>
+<p>一般有两种用途，<br>1.speed=0  通过设置timeOffset 来控制动画进度<br>2.group中的animations 设置不同的offset 会产生动画延迟效果（注意跟设置beginTime 原理不一样）</p>
+<h2 id="fillMode"><a href="#fillMode" class="headerlink" title="fillMode"></a>fillMode</h2><p>指定当前对象，在没有激活动画时候的行为，一般就两个时间点， 动画激活前，动画激活后，需要设置removedOnCompletion=NO才生效</p>
+<p><strong>kCAFillModeRemoved</strong>  动画开始前，结束后对layer 都没有影响，也就是说，动画开始前，layer不会在动画的开始位置，动画结束后，layer不会停在结束位置<br><strong>kCAFillModeForwards</strong> 动画结束后 layer 会一直保持着动画的结束状态<br><strong>kCAFillModeBackwards</strong> 动画开始前  只要对layer addanimation layer 就会进入动画的初始状态等待开始<br><strong>kCAFillModeBoth</strong>     kCAFillModeForwards+kCAFillModeBackwards</p>
+<p>kCAFillModeForwards 即使动画结束 layer停在结束状态,layer的model value 还是不会改变</p>
+<p>kCAFillModeBackwards 一般addAnimation之后，如果object的位置与动画的开始值不一致，object会变为开始值，那kCAFillModeBackwards有什么用呢， 只需要设置一下begainTime=CACurrentMediaTime()+1.0 就能看出来了，让动画延迟1秒,如果没有设置kCAFillModeBackwards ，1秒后object才进入初始状态，如果设置kCAFillModeBackwards之后，在addAnimation之后，马上进入了初始状态</p>
+<h2 id="CAMediaTimingFunction"><a href="#CAMediaTimingFunction" class="headerlink" title="CAMediaTimingFunction"></a>CAMediaTimingFunction</h2><p>系统默认内置了一些CAMediaTimingFunction，我们也可以通过配置一个贝塞尔曲线的两个控制点来自己定义一条曲线</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">[CAMediaTimingFunction functionWithControlPoints:1.00 :0 :0.35 :1.0]</span><span class="comment">;</span></span><br></pre></td></tr></table></figure>
+<p>这个时间线是我们自定义的贝塞尔曲线，  起点(0,0)  终点（1，1） 然后 上面四个float 对应c1x,c1y    c2x,c2y，这样调整出一个贝塞尔曲线，做动画的时间线</p>
+
+      
+    </div>
+    
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/08/03/iOS-Crash收集-符号化分析看我就够了/" rel="next" title="iOS Crash收集,符号化分析看我就够了">
+                <i class="fa fa-chevron-left"></i> iOS Crash收集,符号化分析看我就够了
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/09/06/Core-Animation迟来的总结/"
+           data-title="Core Animation迟来的总结" data-url="http://yoursite.com/2016/09/06/Core-Animation迟来的总结/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/portrait.png"
+               alt="不曾拥有" />
+          <p class="site-author-name" itemprop="name">不曾拥有</p>
+          <p class="site-description motion-element" itemprop="description">不曾拥有的技术博客</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">11</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Layer-Tree"><span class="nav-number">1.</span> <span class="nav-text">Layer Tree</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CABaseAnimation"><span class="nav-number">2.</span> <span class="nav-text">CABaseAnimation</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#fromValue-toValue-byValue"><span class="nav-number">2.1.</span> <span class="nav-text">fromValue,toValue,byValue</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CAPropertyAnimation"><span class="nav-number">3.</span> <span class="nav-text">CAPropertyAnimation</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#additive"><span class="nav-number">3.1.</span> <span class="nav-text">additive</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cumulative"><span class="nav-number">3.2.</span> <span class="nav-text">cumulative</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CAKeyframeAnimation"><span class="nav-number">4.</span> <span class="nav-text">CAKeyframeAnimation</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#values-keytimes"><span class="nav-number">4.1.</span> <span class="nav-text">values  keytimes</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#timingFuctions"><span class="nav-number">4.2.</span> <span class="nav-text">timingFuctions</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#path"><span class="nav-number">4.3.</span> <span class="nav-text">path</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#calculationMode"><span class="nav-number">4.4.</span> <span class="nav-text">calculationMode</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#rotationMode"><span class="nav-number">4.5.</span> <span class="nav-text">rotationMode</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CAMediaTiming"><span class="nav-number">5.</span> <span class="nav-text">CAMediaTiming</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#begainTime"><span class="nav-number">5.1.</span> <span class="nav-text">begainTime</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#timeOffset"><span class="nav-number">5.2.</span> <span class="nav-text">timeOffset</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#fillMode"><span class="nav-number">5.3.</span> <span class="nav-text">fillMode</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CAMediaTimingFunction"><span class="nav-number">5.4.</span> <span class="nav-text">CAMediaTimingFunction</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">不曾拥有</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">访问用户<span class="busuanzi-value" id="busuanzi_value_site_uv"></span></span>
+  
+
+  
+    <span class="site-pv">博客访问量<span class="busuanzi-value" id="busuanzi_value_site_pv"></span></span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"bucengyongyou"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+  
+
+  
+  
+  <!-- custom analytics part create by xiamo -->
+<script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+<script>AV.initialize("kNKleu3PkswnB7pW5oJ6hGeP-gzGzoHsz", "r6E7v9CeOLfby6w8lYi27W5c");</script>
+<script>
+function showTime(Counter) {
+	var query = new AV.Query(Counter);
+	$(".leancloud_visitors").each(function() {
+		var url = $(this).attr("id").trim();
+		query.equalTo("url", url);
+		query.find({
+			success: function(results) {
+				if (results.length == 0) {
+					var content = '0 ' + $(document.getElementById(url)).text();
+					$(document.getElementById(url)).text(content);
+					return;
+				}
+				for (var i = 0; i < results.length; i++) {
+					var object = results[i];
+					var content = object.get('time') + ' ' + $(document.getElementById(url)).text();
+					$(document.getElementById(url)).text(content);
+				}
+			},
+			error: function(object, error) {
+				console.log("Error: " + error.code + " " + error.message);
+			}
+		});
+
+	});
+}
+
+function addCount(Counter) {
+	var Counter = AV.Object.extend("Counter");
+	url = $(".leancloud_visitors").attr('id').trim();
+	title = $(".leancloud_visitors").attr('data-flag-title').trim();
+	var query = new AV.Query(Counter);
+	query.equalTo("url", url);
+	query.find({
+		success: function(results) {
+			if (results.length > 0) {
+				var counter = results[0];
+				counter.fetchWhenSave(true);
+				counter.increment("time");
+				counter.save(null, {
+					success: function(counter) {
+						var content =  counter.get('time') + ' ' + $(document.getElementById(url)).text();
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(counter, error) {
+						$(document.getElementById(url)).text(error.message);
+						console.log('Failed to save Visitor num, with error message: ' + error.message);
+					}
+				});
+			} else {
+				var newcounter = new Counter();
+				newcounter.set("title", title);
+				newcounter.set("url", url);
+				newcounter.set("time", 1);
+				newcounter.save(null, {
+					success: function(newcounter) {
+					    console.log("newcounter.get('time')="+newcounter.get('time'));
+						var content = newcounter.get('time') + ' ' + $(document.getElementById(url)).text();
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(newcounter, error) {
+						console.log('Failed to create');
+					}
+				});
+			}
+		},
+		error: function(error) {
+			console.log('Error:' + error.code + " " + error.message);
+		}
+	});
+}
+$(function() {
+	var Counter = AV.Object.extend("Counter");
+	if ($('.leancloud_visitors').length == 1) {
+		addCount(Counter);
+	} else if ($('.post-title-link').length > 1) {
+		showTime(Counter);
+	}
+}); 
+</script>
+  
+</body>
+</html>
