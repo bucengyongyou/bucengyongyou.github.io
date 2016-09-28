@@ -1,0 +1,766 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="iOS10推出之后，苹果对推送通知模块进行了比较彻底的重构，展现形态上，新的推送通知要要丰富很多，支持标题，子标题，内容，多媒体，另外也支持用交互，代码层面，推送通知统一由UserNotifications  FrameWork 管理，统一了本地通知与远程通知的概念，统一了通知处理的回调入口，对于开发者来说是一大快事。不过，现阶段我们肯定不能只用ios10 的新推送特性，所以未来一段时间，我们的代">
+<meta property="og:type" content="article">
+<meta property="og:title" content="iOS 10 推送通知详解">
+<meta property="og:url" content="http://yoursite.com/2016/09/28/iOS-10-推送通知详解/index.html">
+<meta property="og:site_name" content="不曾拥有的技术博客">
+<meta property="og:description" content="iOS10推出之后，苹果对推送通知模块进行了比较彻底的重构，展现形态上，新的推送通知要要丰富很多，支持标题，子标题，内容，多媒体，另外也支持用交互，代码层面，推送通知统一由UserNotifications  FrameWork 管理，统一了本地通知与远程通知的概念，统一了通知处理的回调入口，对于开发者来说是一大快事。不过，现阶段我们肯定不能只用ios10 的新推送特性，所以未来一段时间，我们的代">
+<meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/5F8A9386-79E4-4379-9D42-258A19666655.png">
+<meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/36A584EB-F6BE-4B4E-9E5D-E63F9AFF4EE0.png">
+<meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/46AC5A27-4A9A-4D45-843A-F443E7DB50BD.png">
+<meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/2DF5B6EE-4577-4328-BFA7-BD0ACADA5D43.png">
+<meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/13AFB168-4732-4B8E-878F-ADCCD2BB80C6.png">
+<meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/asdasdasas.png">
+<meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/9B94A22F-C262-438B-B6D1-6D1883D846A5.png">
+<meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/F79F577E-77A3-4068-8F3E-172691F9915B.png">
+<meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/096675C9-336E-4809-B881-5968AD19B48A.png">
+<meta property="og:image" content="http://7xiutw.com1.z0.glb.clouddn.com/3478C761-C0E3-4918-8047-8DACE02F25C9asdas.png">
+<meta property="og:updated_time" content="2016-09-28T18:17:08.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="iOS 10 推送通知详解">
+<meta name="twitter:description" content="iOS10推出之后，苹果对推送通知模块进行了比较彻底的重构，展现形态上，新的推送通知要要丰富很多，支持标题，子标题，内容，多媒体，另外也支持用交互，代码层面，推送通知统一由UserNotifications  FrameWork 管理，统一了本地通知与远程通知的概念，统一了通知处理的回调入口，对于开发者来说是一大快事。不过，现阶段我们肯定不能只用ios10 的新推送特性，所以未来一段时间，我们的代">
+<meta name="twitter:image" content="http://7xiutw.com1.z0.glb.clouddn.com/5F8A9386-79E4-4379-9D42-258A19666655.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"hide"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> iOS 10 推送通知详解 | 不曾拥有的技术博客 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta custom-logo">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">不曾拥有的技术博客</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                iOS 10 推送通知详解
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-09-28T12:37:30+08:00" content="2016-09-28">
+              2016-09-28
+            </time>
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/09/28/iOS-10-推送通知详解/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/09/28/iOS-10-推送通知详解/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+             &nbsp; | &nbsp;
+              <span id="/2016/09/28/iOS-10-推送通知详解/"class="leancloud_visitors" data-flag-title="iOS 10 推送通知详解">
+                       &nbsp;阅读次数
+                      </span>
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>iOS10推出之后，苹果对推送通知模块进行了比较彻底的重构，展现形态上，新的推送通知要要丰富很多，支持标题，子标题，内容，多媒体，另外也支持用交互，代码层面，推送通知统一由<code>UserNotifications  FrameWork</code> 管理，统一了本地通知与远程通知的概念，统一了通知处理的回调入口，对于开发者来说是一大快事。<br>不过，现阶段我们肯定不能只用ios10 的新推送特性，所以未来一段时间，我们的代码里面可能需要两套推送通知的代码，根据系统的版本区分调用</p>
+<a id="more"></a>
+<h1 id="请求权限"><a href="#请求权限" class="headerlink" title="请求权限"></a>请求权限</h1><p>推送的所有操作都统一由<code>UNUserNotificationCenter</code>来处理<br>开始之前需要先导入<code>#import &lt;UserNotifications/UserNotifications.h&gt;</code></p>
+<h2 id="请求推送通知权限"><a href="#请求推送通知权限" class="headerlink" title="请求推送通知权限"></a>请求推送通知权限</h2><p>这里只是向用户请求推送通知的权限，如果用户允许，那么我们可以发送处理通知（本地通知以及远程通知），但是如果我们想发送远程通知，还必须要拿到token，这一步的注册并不包含拿token的注册，如果我们只调用了下面的方法，是不会进入token的回调的</p>
+<figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[[UNUserNotificationCenter currentNotificationCenter] requestAuthorizationWithOptions:UNAuthorizationOptionAlert|UNAuthorizationOptionBadge|UNAuthorizationOptionSound completionHandler:^(<span class="name">BOOL</span> granted, NSError * _Nullable error) &#123;</span><br><span class="line">                if (<span class="name">granted</span>) &#123;</span><br><span class="line">                    NSLog(@<span class="string">"Notification Enabled"</span>)<span class="comment">;</span></span><br><span class="line">                &#125;else</span><br><span class="line">                &#123;</span><br><span class="line">                    NSLog(@<span class="string">"请求推送通知权限失败 %@"</span>,error)<span class="comment">;</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;]<span class="comment">;</span></span><br></pre></td></tr></table></figure>
+<h2 id="请求token"><a href="#请求token" class="headerlink" title="请求token"></a>请求token</h2><p>在ios10上请求获取token还是用的原来的方法，调用该方法后，会收到获取token成功或者失败的回调</p>
+<figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[[UIApplication sharedApplication] registerForRemoteNotifications]<span class="comment">;</span></span><br></pre></td></tr></table></figure>
+<h2 id="获取用户Notification的配置"><a href="#获取用户Notification的配置" class="headerlink" title="获取用户Notification的配置"></a>获取用户Notification的配置</h2><p>我们可以获取用户对Notification的配置，包括，是否允许通知，开启通知的哪些功能等等</p>
+<figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(<span class="name">UNNotificationSettings</span> * _Nonnull settings) &#123;</span><br><span class="line">  &#125;]<span class="comment">;</span></span><br></pre></td></tr></table></figure>
+<h1 id="新的通知"><a href="#新的通知" class="headerlink" title="新的通知"></a>新的通知</h1><p>ios10对本地通知以及远程通知进行了统一，所以不论是本地通知，还是远程通知，我们拿到的对象都是一致的，接收到通知的处理流程也是一致的</p>
+<p>不同的是本地通知我们是用代码构建的，远程通知是拼Json数据构建的</p>
+<h2 id="UNNotificationContent"><a href="#UNNotificationContent" class="headerlink" title="UNNotificationContent"></a>UNNotificationContent</h2><p>新的通知内容对象，包括了一个推送通知内容方面的所有定制</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//附件，图片，音频，等</span></span><br><span class="line"><span class="keyword">@property</span> (<span class="built_in">NS_NONATOMIC_IOSONLY</span>, <span class="keyword">readonly</span>, <span class="keyword">copy</span>) <span class="built_in">NSArray</span> &lt;UNNotificationAttachment *&gt; *attachments </span><br><span class="line"><span class="keyword">@property</span> (<span class="built_in">NS_NONATOMIC_IOSONLY</span>, <span class="keyword">readonly</span>, <span class="keyword">copy</span>, nullable) <span class="built_in">NSNumber</span> *badge;</span><br><span class="line"><span class="keyword">@property</span> (<span class="built_in">NS_NONATOMIC_IOSONLY</span>, <span class="keyword">readonly</span>, <span class="keyword">copy</span>) <span class="built_in">NSString</span> *body </span><br><span class="line"><span class="keyword">@property</span> (<span class="built_in">NS_NONATOMIC_IOSONLY</span>, <span class="keyword">readonly</span>, <span class="keyword">copy</span>) <span class="built_in">NSString</span> *categoryIdentifier;</span><br><span class="line"><span class="comment">//从通知开启app时的启动图</span></span><br><span class="line"><span class="keyword">@property</span> (<span class="built_in">NS_NONATOMIC_IOSONLY</span>, <span class="keyword">readonly</span>, <span class="keyword">copy</span>) <span class="built_in">NSString</span> *launchImageName </span><br><span class="line"><span class="keyword">@property</span> (<span class="built_in">NS_NONATOMIC_IOSONLY</span>, <span class="keyword">readonly</span>, <span class="keyword">copy</span>, nullable) UNNotificationSound *sound;</span><br><span class="line"><span class="keyword">@property</span> (<span class="built_in">NS_NONATOMIC_IOSONLY</span>, <span class="keyword">readonly</span>, <span class="keyword">copy</span>) <span class="built_in">NSString</span> *subtitle;</span><br><span class="line"><span class="keyword">@property</span> (<span class="built_in">NS_NONATOMIC_IOSONLY</span>, <span class="keyword">readonly</span>, <span class="keyword">copy</span>) <span class="built_in">NSString</span> *threadIdentifier;</span><br><span class="line"><span class="keyword">@property</span> (<span class="built_in">NS_NONATOMIC_IOSONLY</span>, <span class="keyword">readonly</span>, <span class="keyword">copy</span>) <span class="built_in">NSString</span> *title;</span><br><span class="line"><span class="keyword">@property</span> (<span class="built_in">NS_NONATOMIC_IOSONLY</span>, <span class="keyword">readonly</span>, <span class="keyword">copy</span>) <span class="built_in">NSDictionary</span> *userInfo;</span><br></pre></td></tr></table></figure>
+<p>对比原来的推送内容，增加了title,subtitle,多媒体attachment支持等等。</p>
+<h3 id="UNNotificationAttachment"><a href="#UNNotificationAttachment" class="headerlink" title="UNNotificationAttachment"></a>UNNotificationAttachment</h3><p>表示一个多媒体类型附件，目前测试支持图片，音频，视频<br>必须使用本地资源，如果资源文件名字包含扩展名，那么不需要显示的指定文件类型，如果资源文件没有扩展名，那么需要通过option的<code>UNNotificationAttachmentOptionsTypeHintKey</code>key指定资源的<code>**UTI**</code>类型,否则会创建失败</p>
+<blockquote>
+<p><a href="http://www.jianshu.com/p/d6fe1e7af9b6" target="_blank" rel="external">UTI讲解</a></p>
+</blockquote>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//图片  路径不指定类型，通过option指定UTI类型</span></span><br><span class="line">NSString *path= @<span class="string">"/Document/xxxxxxxx/xxxxxx"</span>;</span><br><span class="line">UNNotificationAttachment *attachMent=[UNNotificationAttachment <span class="string">attachmentWithIdentifier:</span>@<span class="string">"aabbcc"</span> <span class="string">URL:</span>[NSURL <span class="string">fileURLWithPath:</span>path] <span class="string">options:</span>@&#123;<span class="string">UNNotificationAttachmentOptionsTypeHintKey:</span>@<span class="string">"public.jpeg"</span>&#125; <span class="string">error:</span>&amp;errr];</span><br><span class="line">        </span><br><span class="line"><span class="comment">//音频</span></span><br><span class="line">NSString *path= [[NSBundle mainBundle] <span class="string">pathForResource:</span>@<span class="string">"test2"</span> <span class="string">ofType:</span>@<span class="string">"mp3"</span>];</span><br><span class="line">UNNotificationAttachment *attachMent=[UNNotificationAttachment <span class="string">attachmentWithIdentifier:</span>@<span class="string">"aabbcc"</span> <span class="string">URL:</span>[NSURL <span class="string">fileURLWithPath:</span>path] <span class="string">options:</span>nil <span class="string">error:</span>&amp;errr];</span><br><span class="line">        </span><br><span class="line"><span class="comment">//视频</span></span><br><span class="line">NSString *path= [[NSBundle mainBundle] <span class="string">pathForResource:</span>@<span class="string">"test3"</span> <span class="string">ofType:</span>@<span class="string">"mp4"</span>];</span><br><span class="line">UNNotificationAttachment *attachMent=[UNNotificationAttachment <span class="string">attachmentWithIdentifier:</span>@<span class="string">"aabbcc"</span> <span class="string">URL:</span>[NSURL <span class="string">fileURLWithPath:</span>path] <span class="string">options:</span>nil <span class="string">error:</span>&amp;errr];</span><br></pre></td></tr></table></figure>
+<p>注意，这种代码创建的方式只适用于本地通知，如果远程通知我们也想添加Attachment，那么必须依赖<strong>Notification Service Extension</strong>,原理是在远程通知显示之前，修改通知的UNNotificationContent对象，然后为其添加Attachment，后面会讲到</p>
+<p><img src="http://7xiutw.com1.z0.glb.clouddn.com/5F8A9386-79E4-4379-9D42-258A19666655.png" alt=""></p>
+<p><img src="http://7xiutw.com1.z0.glb.clouddn.com/36A584EB-F6BE-4B4E-9E5D-E63F9AFF4EE0.png" alt=""></p>
+<p><img src="http://7xiutw.com1.z0.glb.clouddn.com/46AC5A27-4A9A-4D45-843A-F443E7DB50BD.png" alt=""></p>
+<h3 id="UserInfo"><a href="#UserInfo" class="headerlink" title="UserInfo"></a>UserInfo</h3><p>其中<code>userInfo</code>对象，在本地通知的时候由我们创建并填入自定义信息。</p>
+<p>在远程通知的时候，是推送通知的整个json字符串的Dictionary对象，比如下面这种<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"aps"</span>: &#123;</span><br><span class="line">        <span class="attr">"alert"</span>: &#123;</span><br><span class="line">            <span class="attr">"body"</span>: <span class="string">"this is body"</span>,</span><br><span class="line">            <span class="attr">"title"</span>: <span class="string">"this is title"</span>,</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"badge"</span>: <span class="number">4</span>,</span><br><span class="line">        <span class="attr">"payload"</span>: <span class="string">"payload"</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="string">"key1"</span>:<span class="string">"aaaaaa"</span>,</span><br><span class="line">    <span class="attr">"key2"</span>:<span class="string">"bbbbbb"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>所以远程推送的时候，我们可以通过<code>userInfo[@&quot;key1&quot;]</code>这种方式拿到我们的自定义数据</p>
+<h3 id="一个完整的content对象"><a href="#一个完整的content对象" class="headerlink" title="一个完整的content对象"></a>一个完整的content对象</h3><p>下面构建一个推送通知内容对象</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">UNMutableNotificationContent *content=[[UNMutableNotificationContent alloc]init];</span><br><span class="line">content.title=@<span class="string">"this is ios 10 title"</span>;</span><br><span class="line">content.body=@<span class="string">"this is ios 10 body"</span>;</span><br><span class="line">content.subtitle=@<span class="string">"this is ios 10 subtitle"</span>;</span><br><span class="line">content.badge=@<span class="number">100</span>;</span><br><span class="line"><span class="comment">//添加一个图片，图片必须使用本地资源，并且必须携带后缀名，如果没有携带后缀名，需要在</span></span><br><span class="line"><span class="comment">//option里面指定      </span></span><br><span class="line">NSString *path= [[NSBundle mainBundle] <span class="string">pathForResource:</span>@<span class="string">"image"</span> <span class="string">ofType:</span>@<span class="string">"jpg"</span>];</span><br><span class="line">UNNotificationAttachment *attachMent=[UNNotificationAttachment <span class="string">attachmentWithIdentifier:</span>@<span class="string">"aabbcc"</span> <span class="string">URL:</span>[NSURL <span class="string">fileURLWithPath:</span>path] <span class="string">options:</span>nil <span class="string">error:</span>&amp;errr];</span><br><span class="line">content.attachments=@[attachMent];</span><br></pre></td></tr></table></figure>
+<p>通过上面的代码创建了一个content对象，设置了title,subTitle,body,以及一张图片，需要注意的是图片必须使用本地资源，并且必须携带后缀名，如果没有携带后缀名，需要在<br>option里面通过<code>UNNotificationAttachmentOptionsTypeHintKey</code>key指定类型</p>
+<h2 id="Trigger触发器"><a href="#Trigger触发器" class="headerlink" title="Trigger触发器"></a>Trigger触发器</h2><p>本地推送通知需要设置一个触发器，当触发器满足条件的时候，发起本地推送，包括如下三种</p>
+<figure class="highlight 1c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//时间触发器</span></span><br><span class="line">UNTimeIntervalNotificationTrigger</span><br><span class="line"><span class="comment">//日历触发器</span></span><br><span class="line">UNCalendarNotificationTrigger</span><br><span class="line"><span class="comment">//位置触发器</span></span><br><span class="line">UNLocationNotificationTrigger</span><br></pre></td></tr></table></figure>
+<p>创建触发器</p>
+<figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">//<span class="number">5</span>秒以后触发，不重复</span><br><span class="line">UNTimeIntervalNotificationTrigger *timeTrigger=[UNTimeIntervalNotificationTrigger triggerWithTimeInterval:<span class="number">5</span> repeats:NO]<span class="comment">;</span></span><br><span class="line"></span><br><span class="line">//<span class="number">7</span>月<span class="number">21</span>日 <span class="number">10</span>点出发，不重复</span><br><span class="line">NSDateComponents *components = [[NSDateComponents alloc] init]<span class="comment">;</span></span><br><span class="line">components = <span class="number">2016</span><span class="comment">;</span></span><br><span class="line">components.month = <span class="number">7</span><span class="comment">;</span></span><br><span class="line">components.day=<span class="number">21</span><span class="comment">;</span></span><br><span class="line">components.hour =<span class="number">10</span><span class="comment">;</span></span><br><span class="line">UNCalendarNotificationTrigger *dateTrigger = [UNCalendarNotificationTrigger triggerWithDateMatchingComponents:components repeats:NO]<span class="comment">;</span></span><br><span class="line"></span><br><span class="line">//圆形区域，进入时候进行触发，退出的时候触发</span><br><span class="line">CLLocationCoordinate2D center = CLLocationCoordinate2DMake(<span class="number">33.221400</span>, -<span class="number">115.022311</span>)<span class="comment">;</span></span><br><span class="line">CLCircularRegion* region = [[CLCircularRegion alloc] initWithCenter:center</span><br><span class="line">              radius:<span class="number">100</span>.<span class="number">0</span> identifier:@"identifier"]<span class="comment">;</span></span><br><span class="line">region.notifyOnEntry = YES<span class="comment">;</span></span><br><span class="line">region.notifyOnExit = YES<span class="comment">;</span></span><br><span class="line">UNLocationNotificationTrigger* locationTrigger = [UNLocationNotificationTrigger</span><br><span class="line">              triggerWithRegion:region repeats:NO]<span class="comment">;</span></span><br></pre></td></tr></table></figure>
+<h2 id="推送请求"><a href="#推送请求" class="headerlink" title="推送请求"></a>推送请求</h2><p>这里面有点像网络编程的概念，上面创建了content,trigger,需要用其创建一个request，其中比较重要的是identifier属性，我们可以通过这个标识符来取消，更新未发送的通知</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">NSString *identifider=@<span class="string">"notification1"</span>;</span><br><span class="line">UNNotificationRequest *request=[UNNotificationRequest <span class="string">requestWithIdentifier:</span>identifider <span class="string">content:</span>content <span class="string">trigger:</span>trigger];</span><br></pre></td></tr></table></figure>
+<h2 id="添加请求"><a href="#添加请求" class="headerlink" title="添加请求"></a>添加请求</h2><p>请求创建完毕需要添加到队列，发送请求,这样，一个本地通知就创建完成，等待触发时机进行推送</p>
+<figure class="highlight clojure"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request withCompletionHandler:^(<span class="name">NSError</span> * _Nullable error) &#123;</span><br><span class="line">          if (<span class="name">error</span>) &#123;</span><br><span class="line">             </span><br><span class="line">          &#125;</span><br><span class="line">      &#125;]<span class="comment">;</span></span><br></pre></td></tr></table></figure>
+<p><img src="http://7xiutw.com1.z0.glb.clouddn.com/2DF5B6EE-4577-4328-BFA7-BD0ACADA5D43.png" alt=""></p>
+<h1 id="推送通知的生命周期"><a href="#推送通知的生命周期" class="headerlink" title="推送通知的生命周期"></a>推送通知的生命周期</h1><h2 id="查询，更新，删除"><a href="#查询，更新，删除" class="headerlink" title="查询，更新，删除"></a>查询，更新，删除</h2><p>当我们把一个推送通知request添加到<code>UNUserNotificationCenter</code>之后，就会等待其触发，现在iOS10之后，在其触发之前，或者触发之后，我们可以对其进行如下一系列操作。</p>
+<ul>
+<li>获取挂起的所有通知请求</li>
+<li>删除挂起的请求（使用标识符），这样改请求就不会再触发</li>
+<li>删除所有挂起的请求</li>
+<li>获取已经送达的通知（没有被用户点击，仍然保存在通知中心列表的所有通知）</li>
+<li>删除已经送达的通知（使用标识符）</li>
+<li>删除已经送达的所有通知</li>
+<li>更新上面的通知，也会直接反应到系统的通知中心</li>
+</ul>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//挂起的通知操作</span></span><br><span class="line">- (<span class="keyword">void</span>)getPendingNotificationRequestsWithCompletionHandler:(<span class="keyword">void</span>(^)(<span class="built_in">NSArray</span>&lt;UNNotificationRequest *&gt; *requests))completionHandler;</span><br><span class="line">- (<span class="keyword">void</span>)removePendingNotificationRequestsWithIdentifiers:(<span class="built_in">NSArray</span>&lt;<span class="built_in">NSString</span> *&gt; *)identifiers;</span><br><span class="line">- (<span class="keyword">void</span>)removeAllPendingNotificationRequests;</span><br><span class="line"></span><br><span class="line"><span class="comment">//已经送达的通知操作</span></span><br><span class="line">- (<span class="keyword">void</span>)getDeliveredNotificationsWithCompletionHandler:(<span class="keyword">void</span>(^)(<span class="built_in">NSArray</span>&lt;UNNotification *&gt; *notifications))completionHandler;</span><br><span class="line">- (<span class="keyword">void</span>)removeDeliveredNotificationsWithIdentifiers:(<span class="built_in">NSArray</span>&lt;<span class="built_in">NSString</span> *&gt; *)identifiers;</span><br><span class="line">- (<span class="keyword">void</span>)removeAllDeliveredNotifications;</span><br></pre></td></tr></table></figure>
+<h2 id="接收回调"><a href="#接收回调" class="headerlink" title="接收回调"></a>接收回调</h2><p>不同于之前的ios版本，把本地通知，远程通知，点击通知的，处理入口分散到各个地方，ios10将所有通知的处理回调统一起来，主要集中在<code>UNUserNotificationCenter</code>的delegate的两个函数</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//当应用在前台的时候，收到推送通知，在展示之前会进入这个方法，我们通过设定options来决定如何展示这条通知，可以是只展示badge,sound,alert,也可都展示</span></span><br><span class="line">- (<span class="keyword">void</span>)<span class="string">userNotificationCenter:</span>(UNUserNotificationCenter *)center <span class="string">willPresentNotification:</span>(UNNotification *)notification <span class="string">withCompletionHandler:</span>(<span class="keyword">void</span> (^)(UNNotificationPresentationOptions options))completionHandler;</span><br><span class="line"></span><br><span class="line"><span class="comment">//当用户对通知做出响应的时候，进入这个方法，一般是点击了通知，或者点击了通知的action进行交互</span></span><br><span class="line">- (<span class="keyword">void</span>)<span class="string">userNotificationCenter:</span>(UNUserNotificationCenter *)center <span class="string">didReceiveNotificationResponse:</span>(UNNotificationResponse *)response <span class="string">withCompletionHandler:</span>(<span class="keyword">void</span>(^)())completionHandler;</span><br></pre></td></tr></table></figure>
+<p>在ios10以前，当应用在前台的时候，即使收到通知，也不会展示在顶部，如果想展示我们只能自己实现UI，在ios10以后，当应用在前台的时候，我们只需要实现<code>willPresentNotification</code>方法，就能决定是否展示这个通知。当然我们可以根据通知的content做决定</p>
+<p>当用户点击通知的时候，无论是本地通知，还是远程通知，无论应用是打开还是关闭，肯定会进入didReceiveNotificationResponse方法，我们可以在这里进行统一的处理</p>
+<h1 id="远程推送"><a href="#远程推送" class="headerlink" title="远程推送"></a>远程推送</h1><p>远程推送需要服务端构建推送json结构，下面是一个不带任何多媒体信息的推送结构</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"aps"</span>: &#123;</span><br><span class="line">        <span class="attr">"alert"</span>: &#123;</span><br><span class="line">            <span class="attr">"body"</span>: <span class="string">"this is body"</span>,</span><br><span class="line">            <span class="attr">"title"</span>: <span class="string">"this is title"</span>,</span><br><span class="line">            <span class="attr">"subtitle"</span>:<span class="string">"this is subtitle"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"badge"</span>: <span class="number">4</span>,</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="string">"key1"</span>:<span class="string">"aaaaaa"</span>,</span><br><span class="line">    <span class="attr">"key2"</span>:<span class="string">"bbbbbb"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果我们想要发送一个远程通知，并且携带多媒体信息，我们需要在aps里面增加<code>mutable-content : 1</code>,用来表示这个推送的content是可以被修改的，这样，当我们为app创建了notification service extension之后，会进入<code>notification service extension</code>的回调方法，在里面，我们可以在远程通知展示之前，对其content进行修改。</p>
+<p>依照这个原理，我们需要构建如下json<br><figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"aps"</span>: &#123;</span><br><span class="line">        <span class="attr">"alert"</span>: &#123;</span><br><span class="line">            <span class="attr">"body"</span>: <span class="string">"this is body"</span>,</span><br><span class="line">            <span class="attr">"title"</span>: <span class="string">"this is title"</span>,</span><br><span class="line">            <span class="attr">"subtitle"</span>:<span class="string">"this is subtitle"</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">"badge"</span>: <span class="number">4</span>,</span><br><span class="line">        <span class="attr">"mutable-content"</span> : <span class="number">1</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="string">"image"</span>:<span class="string">"http://www.xxxx.xxx/xxxxxx.jpg"</span>,</span><br><span class="line">    <span class="attr">"key2"</span>:<span class="string">"bbbbbb"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>然后在<code>notification service extension</code>的回调方法里面通过userInfo获取image,进行下载,然后用下载的本地文件创建attachment，最后赋值给content，即可完成对远程通知的修改。这样就能展示多媒体内容</p>
+<h1 id="Notification-Service-Extension"><a href="#Notification-Service-Extension" class="headerlink" title="Notification Service Extension"></a>Notification Service Extension</h1><p><code>Notification Service Extension</code> 是一个app extension，是一段嵌入宿主app的二进制文件。</p>
+<p><code>Notification Service Extension</code>允许我们在收到远程推送并且在其展示之前，对推送的内容进行修改。</p>
+<p>首先我们要创建一个<code>Notification Service Extension</code> <strong>target</strong><br><img src="http://7xiutw.com1.z0.glb.clouddn.com/13AFB168-4732-4B8E-878F-ADCCD2BB80C6.png" alt=""></p>
+<p><img src="http://7xiutw.com1.z0.glb.clouddn.com/asdasdasas.png" alt=""></p>
+<p>其中<code>Embed in Application</code> 是我们<code>Notification Service Extension</code>需要嵌入的程序，也就是说，我们只对这个application起作用</p>
+<p>创建好<code>Notification Service Extension</code>之后，系统会自动为我们创建如下文件</p>
+<p><img src="http://7xiutw.com1.z0.glb.clouddn.com/9B94A22F-C262-438B-B6D1-6D1883D846A5.png" alt=""></p>
+<p>其中主要包含两个方法</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//收到远程通知，在展示之前会进入这个方法。这里允许我们创建一个新的content对象，返回给contentHandler，用来展示</span></span><br><span class="line">- (<span class="keyword">void</span>)<span class="string">didReceiveNotificationRequest:</span>(UNNotificationRequest *)request <span class="string">withContentHandler:</span>(<span class="keyword">void</span> (^)(UNNotificationContent * _Nonnull))contentHandler;</span><br><span class="line"></span><br><span class="line"><span class="comment">//加入上面的方法耗时比较长，在一定的时间内都没创建并返回一个content，就会调用这个过期方法，在这里我们可以最终返回一个可以使用的content。</span></span><br><span class="line">- (<span class="keyword">void</span>)serviceExtensionTimeWillExpire;</span><br></pre></td></tr></table></figure>
+<p>下面的代码是一个展示图片的<code>Notification Service Extension</code>代码示例</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)didReceiveNotificationRequest:(UNNotificationRequest *)request withContentHandler:(<span class="keyword">void</span> (^)(UNNotificationContent * _Nonnull))contentHandler &#123;</span><br><span class="line">    <span class="keyword">self</span>.contentHandler = contentHandler;</span><br><span class="line">    <span class="keyword">self</span>.bestAttemptContent = [request.content mutableCopy];</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSString</span> *url = [<span class="built_in">NSString</span> stringWithFormat:<span class="string">@"%@"</span>,request.content.userInfo[<span class="string">@"image"</span>]];</span><br><span class="line">    </span><br><span class="line">   <span class="built_in">NSURLSessionDataTask</span> *task= [[<span class="built_in">NSURLSession</span> sharedSession] dataTaskWithURL:[<span class="built_in">NSURL</span> URLWithString:url] completionHandler:^(<span class="built_in">NSData</span> * _Nullable data, <span class="built_in">NSURLResponse</span> * _Nullable response, <span class="built_in">NSError</span> * _Nullable error) &#123;</span><br><span class="line">        <span class="built_in">NSArray</span> *paths = <span class="built_in">NSSearchPathForDirectoriesInDomains</span>(<span class="built_in">NSDocumentDirectory</span>, <span class="built_in">NSUserDomainMask</span>, <span class="literal">YES</span>);</span><br><span class="line">        <span class="built_in">NSString</span> *docDir = [paths objectAtIndex:<span class="number">0</span>];</span><br><span class="line">       <span class="built_in">NSString</span> *path= [docDir stringByAppendingPathComponent:[<span class="built_in">NSString</span> stringWithFormat:<span class="string">@"%@"</span>,[<span class="keyword">self</span> md5String:url]]];</span><br><span class="line">        [data writeToFile:path atomically:<span class="literal">YES</span>];</span><br><span class="line">        </span><br><span class="line">       </span><br><span class="line">        <span class="built_in">NSError</span> *attachError;</span><br><span class="line">       UNNotificationAttachment *attachMent=[UNNotificationAttachment attachmentWithIdentifier:<span class="string">@"aa"</span> URL:[<span class="built_in">NSURL</span> fileURLWithPath:path] options:@&#123;UNNotificationAttachmentOptionsTypeHintKey:<span class="string">@"public.jpeg"</span>&#125; error:&amp;attachError];</span><br><span class="line">        <span class="keyword">self</span>.bestAttemptContent.attachments=@[attachMent];</span><br><span class="line">        <span class="keyword">self</span>.contentHandler(<span class="keyword">self</span>.bestAttemptContent);</span><br><span class="line">    &#125;];</span><br><span class="line">    </span><br><span class="line">    [task resume];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)serviceExtensionTimeWillExpire &#123;</span><br><span class="line">    <span class="comment">// Called just before the extension will be terminated by the system.</span></span><br><span class="line">    <span class="comment">// Use this as an opportunity to deliver your "best attempt" at modified content, otherwise the original push payload will be used.</span></span><br><span class="line">    <span class="keyword">self</span>.contentHandler(<span class="keyword">self</span>.bestAttemptContent);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>Notification Service Extension</code> 其实也是一个独立的二进制文件，也有info.plist配置文件，也有对应的bundleId,同样需要用证书签名，需要对应的mobileprovision配置文件。</p>
+<p><img src="http://7xiutw.com1.z0.glb.clouddn.com/F79F577E-77A3-4068-8F3E-172691F9915B.png" alt=""></p>
+<p>打开编译好的app包，发现里面多了Plugins文件夹子，里面正式这个app所有的extension包<br><img src="http://7xiutw.com1.z0.glb.clouddn.com/096675C9-336E-4809-B881-5968AD19B48A.png" alt=""></p>
+<p>右键显示包内容,其内容与普通的app包是一样的<br><img src="http://7xiutw.com1.z0.glb.clouddn.com/3478C761-C0E3-4918-8047-8DACE02F25C9asdas.png" alt=""></p>
+<p><strong>所以如果我们想对app重签名，必须对Plugins文件夹内的所有extension进行重签名，而对extension重签名，同样需要知道其bundleId,需要为这个bundleId创建mobileprovision配置文件</strong></p>
+<p>另外我们运行的时候选择<code>extension</code>这个target然后从选择框里面选择embeded application,这样当我们收到推送的时候，能在<code>didReceiveNotificationRequest</code>里面进行断点调试</p>
+
+      
+    </div>
+    
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/06/Core-Animation迟来的总结/" rel="next" title="Core Animation迟来的总结">
+                <i class="fa fa-chevron-left"></i> Core Animation迟来的总结
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div class="ds-thread" data-thread-key="2016/09/28/iOS-10-推送通知详解/"
+           data-title="iOS 10 推送通知详解" data-url="http://yoursite.com/2016/09/28/iOS-10-推送通知详解/">
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/portrait.png"
+               alt="不曾拥有" />
+          <p class="site-author-name" itemprop="name">不曾拥有</p>
+          <p class="site-description motion-element" itemprop="description">不曾拥有的技术博客</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#请求权限"><span class="nav-number">1.</span> <span class="nav-text">请求权限</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#请求推送通知权限"><span class="nav-number">1.1.</span> <span class="nav-text">请求推送通知权限</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#请求token"><span class="nav-number">1.2.</span> <span class="nav-text">请求token</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#获取用户Notification的配置"><span class="nav-number">1.3.</span> <span class="nav-text">获取用户Notification的配置</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#新的通知"><span class="nav-number">2.</span> <span class="nav-text">新的通知</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#UNNotificationContent"><span class="nav-number">2.1.</span> <span class="nav-text">UNNotificationContent</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#UNNotificationAttachment"><span class="nav-number">2.1.1.</span> <span class="nav-text">UNNotificationAttachment</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UserInfo"><span class="nav-number">2.1.2.</span> <span class="nav-text">UserInfo</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#一个完整的content对象"><span class="nav-number">2.1.3.</span> <span class="nav-text">一个完整的content对象</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Trigger触发器"><span class="nav-number">2.2.</span> <span class="nav-text">Trigger触发器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#推送请求"><span class="nav-number">2.3.</span> <span class="nav-text">推送请求</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#添加请求"><span class="nav-number">2.4.</span> <span class="nav-text">添加请求</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#推送通知的生命周期"><span class="nav-number">3.</span> <span class="nav-text">推送通知的生命周期</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#查询，更新，删除"><span class="nav-number">3.1.</span> <span class="nav-text">查询，更新，删除</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#接收回调"><span class="nav-number">3.2.</span> <span class="nav-text">接收回调</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#远程推送"><span class="nav-number">4.</span> <span class="nav-text">远程推送</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Notification-Service-Extension"><span class="nav-number">5.</span> <span class="nav-text">Notification Service Extension</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">不曾拥有</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+<div class="busuanzi-count">
+
+  <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+  
+    <span class="site-uv">访问用户<span class="busuanzi-value" id="busuanzi_value_site_uv"></span></span>
+  
+
+  
+    <span class="site-pv">博客访问量<span class="busuanzi-value" id="busuanzi_value_site_pv"></span></span>
+  
+  
+</div>
+
+
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"bucengyongyou"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.id = 'duoshuo-script';
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+
+  
+    
+  
+
+
+
+
+
+  
+  
+  
+
+  
+  
+  <!-- custom analytics part create by xiamo -->
+<script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+<script>AV.initialize("kNKleu3PkswnB7pW5oJ6hGeP-gzGzoHsz", "r6E7v9CeOLfby6w8lYi27W5c");</script>
+<script>
+function showTime(Counter) {
+	var query = new AV.Query(Counter);
+	$(".leancloud_visitors").each(function() {
+		var url = $(this).attr("id").trim();
+		query.equalTo("url", url);
+		query.find({
+			success: function(results) {
+				if (results.length == 0) {
+					var content = '0 ' + $(document.getElementById(url)).text();
+					$(document.getElementById(url)).text(content);
+					return;
+				}
+				for (var i = 0; i < results.length; i++) {
+					var object = results[i];
+					var content = object.get('time') + ' ' + $(document.getElementById(url)).text();
+					$(document.getElementById(url)).text(content);
+				}
+			},
+			error: function(object, error) {
+				console.log("Error: " + error.code + " " + error.message);
+			}
+		});
+
+	});
+}
+
+function addCount(Counter) {
+	var Counter = AV.Object.extend("Counter");
+	url = $(".leancloud_visitors").attr('id').trim();
+	title = $(".leancloud_visitors").attr('data-flag-title').trim();
+	var query = new AV.Query(Counter);
+	query.equalTo("url", url);
+	query.find({
+		success: function(results) {
+			if (results.length > 0) {
+				var counter = results[0];
+				counter.fetchWhenSave(true);
+				counter.increment("time");
+				counter.save(null, {
+					success: function(counter) {
+						var content =  counter.get('time') + ' ' + $(document.getElementById(url)).text();
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(counter, error) {
+						$(document.getElementById(url)).text(error.message);
+						console.log('Failed to save Visitor num, with error message: ' + error.message);
+					}
+				});
+			} else {
+				var newcounter = new Counter();
+				newcounter.set("title", title);
+				newcounter.set("url", url);
+				newcounter.set("time", 1);
+				newcounter.save(null, {
+					success: function(newcounter) {
+					    console.log("newcounter.get('time')="+newcounter.get('time'));
+						var content = newcounter.get('time') + ' ' + $(document.getElementById(url)).text();
+						$(document.getElementById(url)).text(content);
+					},
+					error: function(newcounter, error) {
+						console.log('Failed to create');
+					}
+				});
+			}
+		},
+		error: function(error) {
+			console.log('Error:' + error.code + " " + error.message);
+		}
+	});
+}
+$(function() {
+	var Counter = AV.Object.extend("Counter");
+	if ($('.leancloud_visitors').length == 1) {
+		addCount(Counter);
+	} else if ($('.post-title-link').length > 1) {
+		showTime(Counter);
+	}
+}); 
+</script>
+  
+</body>
+</html>
