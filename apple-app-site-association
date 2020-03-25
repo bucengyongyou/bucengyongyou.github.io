@@ -4,7 +4,11 @@
         "details": [
             {
                 "appID": "46HH3VM6G9.com.youa.UniversalLinkDemo",
-                "paths": [ "/2016/*" ]
+                "paths": [ "*" ]
+            },
+            {
+                "appID": "46HH3VM6G9.com.baidu.youavideo-dev",
+                "paths": [ "*" ]
             }
         ]
     }
