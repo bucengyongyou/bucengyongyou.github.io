@@ -8,15 +8,15 @@
             },
             {
                 "appID": "46HH3VM6G9.com.baidu.youavideo-dev",
-                "paths": [ "*" ]
+                "paths": [ "/app/*" ]
             },
             {
                 "appID": "46HH3VM6G9.com.baidu.youavideo",
-                "paths": [ "*" ]
+                "paths": [ "/app/*" ]
             },
             {
                 "appID": "6T9LLJKSM4.com.baidu.youavideo-ci",
-                "paths": [ "*" ]
+                "paths": [ "/app/*" ]
             }
         ]
     }
