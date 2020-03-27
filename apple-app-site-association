@@ -3,20 +3,16 @@
         "apps": [],
         "details": [
             {
-                "appID": "46HH3VM6G9.com.youa.UniversalLinkDemo",
-                "paths": [ "*" ]
-            },
-            {
                 "appID": "46HH3VM6G9.com.baidu.youavideo-dev",
-                "paths": [ "/app/*" ]
+                "paths": [ "/app/*", "qq_conn/101861058" ]
             },
             {
                 "appID": "46HH3VM6G9.com.baidu.youavideo",
-                "paths": [ "/app/*" ]
+                "paths": [ "/app/*", "qq_conn/101861058" ]
             },
             {
                 "appID": "6T9LLJKSM4.com.baidu.youavideo-ci",
-                "paths": [ "/app/*" ]
+                "paths": [ "/app/*", "qq_conn/101861058" ]
             }
         ]
     }
