@@ -4,15 +4,15 @@
         "details": [
             {
                 "appID": "6T9LLJKSM4.com.baidu.youavideo-ci",
-                "paths": [ "/operation/*", "/app/*", "/qq_conn/101861058/*" ]
+                "paths": [ "/operation/*", "/app/*", "/qq_conn/101861058/*", "/haha/*" ]
             },
             {
                 "appID": "63N993Z765.com.baidu.netdisk.youavideodebug",
-                "paths": [ "/operation/*", "/app/*", "/qq_conn/101861058/*" ]
+                "paths": [ "/operation/*", "/app/*", "/qq_conn/101861058/*", "/haha/*" ]
             },
             {
                 "appID": "LKD5676Y5W.com.baidu.youavideo",
-                "paths": [ "/operation/*", "/app/*", "/qq_conn/101861058/*" ]
+                "paths": [ "/operation/*", "/app/*", "/qq_conn/101861058/*", "/haha/*" ]
             }
         ]
     }
