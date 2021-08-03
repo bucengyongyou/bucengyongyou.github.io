@@ -3,20 +3,16 @@
         "apps": [],
         "details": [
             {
-                "appID": "46HH3VM6G9.com.baidu.youavideo",
-                "paths": [ "/test/*"]
+                "appID": "6T9LLJKSM4.com.baidu.youavideo-ci",
+                "paths": [ "/operation/*", "/app/*", "/qq_conn/101861058/*" ]
             },
             {
-                "appID": "B83JBVZ6M5.com.baidu.youavideo-debug",
-                "paths": [ "/test/*"]
-            },
-            {
-                "appID": "B83JBVZ6M5.com.baidu.youavideo",
-                "paths": [ "/test/*"]
+                "appID": "63N993Z765.com.baidu.netdisk.youavideodebug",
+                "paths": [ "/operation/*", "/app/*", "/qq_conn/101861058/*" ]
             },
             {
                 "appID": "LKD5676Y5W.com.baidu.youavideo",
-                "paths": [ "/test/*"]
+                "paths": [ "/operation/*", "/app/*", "/qq_conn/101861058/*" ]
             }
         ]
     }
